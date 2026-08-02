@@ -28,7 +28,7 @@ jobs:
         working-directory: android
         run: |
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
+          ./gradlew assembleDebug --no-daemon -Pmirror=false
       - name: 重命名 APK
         run: |
           mkdir -p dist
@@ -52,6 +52,7 @@ jobs:
           dotnet publish windows/src/GlassSuite/GlassSuite.csproj -c Release -r win-x64 --self-contained false -o publish/GlassSuite-win-x64
       - name: 裁剪冗余架构并打包 ZIP
         run: |
+          New-Item -ItemType Directory -Force -Path dist
           Remove-Item -Recurse -Force publish/GlassSuite-win-x64/libvlc/win-x86
           Compress-Archive -Path publish/GlassSuite-win-x64 -DestinationPath dist/GlassSuite-win-x64-${{ github.ref_name }}.zip
       - uses: actions/upload-artifact@v4
