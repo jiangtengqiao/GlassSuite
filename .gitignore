@@ -43,3 +43,5 @@ Thumbs.db
 
 # Kun 内部文件
 .agents/
+server/beta-server/data/
+server/beta-server/node_modules/
