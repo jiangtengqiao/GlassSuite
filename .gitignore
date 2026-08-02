@@ -40,3 +40,6 @@ npm-debug.log*
 *.log
 .DS_Store
 Thumbs.db
+
+# Kun 内部文件
+.agents/
