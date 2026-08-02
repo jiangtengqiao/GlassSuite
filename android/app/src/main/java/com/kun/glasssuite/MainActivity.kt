@@ -11,10 +11,14 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -51,6 +55,7 @@ import com.kun.glasssuite.ui.glass.GlassHomeScreen
 import com.kun.glasssuite.ui.login.LoginScreen
 import com.kun.glasssuite.ui.main.MainActions
 import com.kun.glasssuite.ui.main.MainScreen
+import com.kun.glasssuite.ui.music.MusicAgreementScreen
 import com.kun.glasssuite.ui.player.PlayerScreen
 import com.kun.glasssuite.ui.playlist.LikedScreen
 import com.kun.glasssuite.ui.playlist.PlaylistScreen
@@ -89,16 +94,13 @@ class MainActivity : ComponentActivity() {
 
             // 自动更新弹窗推送
             var updateDialog by remember { mutableStateOf<Release?>(null) }
+            var announcementDialog by remember { mutableStateOf<List<com.kun.glasssuite.data.Announcement>?>(null) }
             LaunchedEffect(Unit) {
                 UpdateChecker.events.collectLatest { event ->
                     when (event) {
                         is UpdateChecker.UpdateEvent.NewVersion -> updateDialog = event.release
                         is UpdateChecker.UpdateEvent.Announcements -> {
-                            Toast.makeText(
-                                this@MainActivity,
-                                "收到 ${event.list.size} 条新公告",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            announcementDialog = event.list
                         }
                     }
                 }
@@ -135,6 +137,7 @@ class MainActivity : ComponentActivity() {
                     composable("music") {
                         MainScreen(
                             MainActions(
+                                onBackHome = { nav.popBackStack() },
                                 onLogin = { nav.navigate("login") },
                                 onOpenPlayer = { nav.navigate("player") },
                                 onOpenSettings = { nav.navigate("settings") },
@@ -153,8 +156,13 @@ class MainActivity : ComponentActivity() {
                                         popUpTo("music") { inclusive = false }
                                     }
                                 },
+                                onOpenMusicAgreement = { nav.navigate("music-agreement") },
                             )
                         )
+                    }
+
+                    composable("music-agreement") {
+                        MusicAgreementScreen(onBack = { nav.popBackStack() })
                     }
 
                     composable("login") {
@@ -256,7 +264,7 @@ class MainActivity : ComponentActivity() {
                     }
 
                     composable("settings") {
-                        SettingsScreen(onBack = { nav.popBackStack() })
+                        SettingsScreen(onBack = { nav.popBackStack() }, onOpenBeta = { nav.navigate("beta") })
                     }
 
                     composable("liked") {
@@ -277,6 +285,13 @@ class MainActivity : ComponentActivity() {
                     updateDialog = null
                 }
             }
+
+            // 新公告弹窗推送
+            announcementDialog?.let { list ->
+                AnnouncementDialog(list) {
+                    announcementDialog = null
+                }
+            }
         }
 
         // 通知权限：首次启动引导弹窗（推送更新/公告信息所需）
@@ -293,6 +308,34 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+}
+
+@Composable
+private fun AnnouncementDialog(list: List<com.kun.glasssuite.data.Announcement>, onDismiss: () -> Unit) {
+    androidx.compose.material3.AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("收到 ${list.size} 条新公告") },
+        text = {
+            Column {
+                list.take(3).forEach { a ->
+                    Text(
+                        (if (a.isPromo) "📢 推广 · " else "📣 公告 · ") + a.title,
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Text(
+                        a.content.take(120),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(bottom = 8.dp),
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) { Text("知道了") }
+        },
+    )
 }
 
 @Composable

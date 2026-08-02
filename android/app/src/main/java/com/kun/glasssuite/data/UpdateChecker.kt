@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
  */
 object UpdateChecker {
 
-    const val VERSION_NAME = "1.1.0-beta.1"
+    const val VERSION_NAME = "1.1.0"
     const val CHECK_INTERVAL_MS = 30 * 60 * 1000L
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
@@ -141,19 +141,43 @@ object UpdateChecker {
     }
 
     /** 内置默认公告（在线公告不可用时兜底） */
+    /** 内置默认公告（在线公告不可用时兜底） */
     fun builtinAnnouncements(): List<Announcement> = listOf(
         Announcement(
             id = "builtin-welcome",
             title = "欢迎使用璃光 GlassSuite",
-            content = "GlassSuite 是一款多功能应用套件：音乐、GitHub 检索、更新中心与公告推送。\n当前版本：$VERSION_NAME",
+            content = "GlassSuite 多功能应用套件正式开放 Beta 尝鲜：液态玻璃 UI、GitHub 检索、更新中心、公告推送与音乐模块。\n当前版本：$VERSION_NAME",
             isPromo = false,
             date = "2026-08-02",
         ),
         Announcement(
             id = "builtin-music",
-            title = "音乐模块使用提示",
-            content = "音乐模块需自托管网易云接口服务：cd server && docker compose up -d\n并在「设置 → 服务器地址」中配置。",
+            title = "音乐模块使用说明",
+            content = "音乐数据由你部署的接口服务器提供：cd server && docker compose up -d，然后在「设置 → 服务器连接」填入地址并测试。\n模拟器默认 http://10.0.2.2:3000；真机填电脑局域网 IP。访客无需登录即可试听大部分曲目。",
             isPromo = false,
+            date = "2026-08-02",
+        ),
+        Announcement(
+            id = "builtin-beta",
+            title = "开发者尝鲜计划开放申请",
+            content = "提交申请并通过自动评分（≥60 分）即可获得 22~37 位唯一尝鲜码，提前体验 Beta 版本推送；未激活尝鲜码仅接收正式版推送。",
+            isPromo = false,
+            date = "2026-08-02",
+        ),
+        Announcement(
+            id = "builtin-update",
+            title = "更新中心已上线",
+            content = "启动即自动检查更新，每 30 分钟轮询一次；发现新版本将弹窗推送，更新日志支持点击折叠展开。",
+            isPromo = false,
+            date = "2026-08-02",
+        ),
+        Announcement(
+            id = "builtin-promo",
+            title = "关注仓库获取最新动态",
+            content = "Star 并 Watch 仓库，第一时间获取版本发布、公告与尝鲜名额动态。",
+            isPromo = true,
+            date = "2026-08-02",
+            url = "https://github.com/jiangtengqiao/GlassSuite",
         ),
     )
 }

@@ -19,18 +19,17 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Slider
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -51,10 +50,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kun.glasssuite.App
-import com.kun.glasssuite.data.BetaStore
 import com.kun.glasssuite.data.Api
 import com.kun.glasssuite.data.AppConfig
+import com.kun.glasssuite.data.BetaStore
 import com.kun.glasssuite.data.Settings
+import com.kun.glasssuite.data.UpdateChecker
 import com.kun.glasssuite.ui.theme.AccentPresets
 import kotlinx.coroutines.launch
 
@@ -78,12 +78,24 @@ fun SettingsScreen(onBack: () -> Unit, onOpenBeta: () -> Unit = {}) {
     val scope = rememberCoroutineScope()
     val settings by app.settings.data.collectAsState(initial = Settings())
     var apiUrl by remember { mutableStateOf(AppConfig.apiBaseUrl) }
-    var diyText by remember { mutableStateOf(AppConfig.diyLyric) }
+    var betaUrl by remember { mutableStateOf(BetaStore.betaServerUrl) }
+    var connState by remember { mutableStateOf("") }
     var savedMsg by remember { mutableStateOf<String?>(null) }
     var openDoc by remember { mutableStateOf<String?>(null) }
-    var ghOwner by remember { mutableStateOf(AppConfig.ghOwner) }
-    var ghRepo by remember { mutableStateOf(AppConfig.ghRepo) }
-    var betaUrl by remember { mutableStateOf(com.kun.glasssuite.data.BetaStore.betaServerUrl) }
+
+    // 自动探测默认服务器地址（模拟器/真机）
+    LaunchedEffect(Unit) {
+        if (AppConfig.apiBaseUrl == AppConfig.DEFAULT_API) {
+            val emu = "http://10.0.2.2:3000"
+            val local = "http://127.0.0.1:3000"
+            apiUrl = runCatching {
+                val c = java.net.Socket()
+                c.connect(java.net.InetSocketAddress("10.0.2.2", 3000), 800)
+                c.close()
+                emu
+            }.getOrElse { local }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -103,69 +115,12 @@ fun SettingsScreen(onBack: () -> Unit, onOpenBeta: () -> Unit = {}) {
                 .padding(padding)
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
-            // 服务器地址
-            SectionTitle("服务器")
-            OutlinedTextField(
-                value = apiUrl,
-                onValueChange = { apiUrl = it },
-                label = { Text("API 服务器地址") },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth(),
-            )
-            OutlinedButton(
-                onClick = {
-                    val url = apiUrl.trim().trimEnd('/')
-                    AppConfig.apiBaseUrl = url
-                    Api.rebuild()
-                    scope.launch { app.settings.updateApiBase(url) }
-                    savedMsg = "服务器地址已保存：$url"
-                },
-                modifier = Modifier.fillMaxWidth(),
-            ) { Text("保存并应用") }
-            savedMsg?.let {
-                Text(it, color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.bodySmall)
-            }
-
-            // 主题色
-            SectionTitle("主题定制")
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                AccentPresets.forEach { (name, argb) ->
-                    val hex = "#%06X".format(argb and 0xFFFFFF)
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Box(
-                            Modifier
-                                .size(36.dp)
-                                .clip(CircleShape)
-                                .background(Color(argb))
-                                .clickable {
-                                    AppConfig.accentHex = hex
-                                    scope.launch { app.settings.setAccent(hex) }
-                                    savedMsg = "主题色已切换：$name"
-                                }
-                        )
-                        Spacer(Modifier.height(4.dp))
-                        Text(name, style = MaterialTheme.typography.labelSmall)
-                    }
-                }
-            }
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("深色模式", Modifier.weight(1f))
-                Switch(
-                    checked = settings.darkMode,
-                    onCheckedChange = {
-                        AppConfig.darkMode = it
-                        scope.launch { app.settings.setDarkMode(it) }
-                    },
-                )
-            }
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("外观模式", Modifier.weight(1f))
-            }
+            // ===== 外观 =====
+            SectionTitle("外观")
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                val modes = listOf("跟随系统" to 0, "浅色" to 1, "深色" to 2)
-                modes.forEach { (name, m) ->
+                listOf("跟随系统" to 0, "浅色" to 1, "深色" to 2).forEach { (name, m) ->
                     FilterChip(
                         selected = settings.themeMode == m,
                         onClick = {
@@ -176,125 +131,103 @@ fun SettingsScreen(onBack: () -> Unit, onOpenBeta: () -> Unit = {}) {
                     )
                 }
             }
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                AccentPresets.forEach { (name, argb) ->
+                    val hex = "#%06X".format(argb and 0xFFFFFF)
+                    Box(
+                        Modifier
+                            .size(32.dp)
+                            .clip(CircleShape)
+                            .background(Color(argb))
+                            .clickable {
+                                AppConfig.accentHex = hex
+                                scope.launch { app.settings.setAccent(hex) }
+                            }
+                    )
+                }
+            }
 
-            // 开发者尝鲜
+            // ===== 服务器连接 =====
+            SectionTitle("服务器连接")
+            Text(
+                "音乐数据由你部署的服务器提供。部署方式见仓库 README；默认地址适用于模拟器。",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                OutlinedTextField(
+                    value = apiUrl,
+                    onValueChange = { apiUrl = it },
+                    label = { Text("服务器地址") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                Spacer(Modifier.width(10.dp))
+                Button(onClick = {
+                    val url = apiUrl.trim().trimEnd('/')
+                    AppConfig.apiBaseUrl = url
+                    Api.rebuild()
+                    scope.launch {
+                        app.settings.updateApiBase(url)
+                        savedMsg = "已保存，测试连接…"
+                        connState = runCatching {
+                            val resp = retrofit2.Retrofit.Builder()
+                                .baseUrl(if (url.endsWith("/")) url else "$url/")
+                                .build()
+                                .create(com.kun.glasssuite.data.ApiService::class.java)
+                                .toplist()
+                            if (resp.code == 200) "✅ 连接成功" else "⚠️ 服务器返回异常"
+                        }.getOrElse { "❌ 无法连接（请确认服务器已启动）" }
+                    }
+                }) { Text("测试并保存") }
+            }
+            if (connState.isNotEmpty()) {
+                Text(connState, color = if (connState.startsWith("✅")) Color(0xFF00B578) else Color(0xFFE84026))
+            }
+            savedMsg?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary) }
+
+            // ===== 开发者尝鲜 =====
             SectionTitle("开发者尝鲜")
             Row(
                 Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(8.dp))
+                    .clip(RoundedCornerShape(10.dp))
                     .clickable { onOpenBeta() }
-                    .padding(vertical = 12.dp, horizontal = 8.dp)
+                    .padding(vertical = 12.dp, horizontal = 10.dp)
             ) {
                 Column(Modifier.weight(1f)) {
                     Text("开发者尝鲜模式", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
                     Text(
-                        if (BetaStore.betaAccess) "已激活（可接收 Beta 版推送）" else "申请/激活尝鲜码，体验 Beta 版本",
+                        if (BetaStore.betaAccess) "已激活 · 可接收 Beta 版推送" else "申请尝鲜码，提前体验 Beta 版本",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
                 Text("›", color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            OutlinedTextField(
-                value = betaUrl,
-                onValueChange = { betaUrl = it },
-                label = { Text("Beta 服务器地址") },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth(),
-            )
-            OutlinedButton(
-                onClick = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                OutlinedTextField(
+                    value = betaUrl,
+                    onValueChange = { betaUrl = it },
+                    label = { Text("尝鲜服务器地址") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                Spacer(Modifier.width(10.dp))
+                OutlinedButton(onClick = {
                     BetaStore.betaServerUrl = betaUrl.trim()
                     scope.launch { app.settings.setBetaServer(betaUrl.trim()) }
-                    savedMsg = "Beta 服务器已保存"
-                },
-                modifier = Modifier.fillMaxWidth(),
-            ) { Text("保存 Beta 服务器") }
-
-            // GitHub 仓库（更新/公告/GitHub 模块数据源）
-            SectionTitle("GitHub")
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                OutlinedTextField(
-                    value = ghOwner,
-                    onValueChange = { ghOwner = it },
-                    label = { Text("Owner") },
-                    singleLine = true,
-                    modifier = Modifier.weight(1f),
-                )
-                OutlinedTextField(
-                    value = ghRepo,
-                    onValueChange = { ghRepo = it },
-                    label = { Text("Repo") },
-                    singleLine = true,
-                    modifier = Modifier.weight(1f),
-                )
+                    savedMsg = "尝鲜服务器已保存"
+                }) { Text("保存") }
             }
-            OutlinedButton(
-                onClick = {
-                    AppConfig.ghOwner = ghOwner.trim()
-                    AppConfig.ghRepo = ghRepo.trim()
-                    com.kun.glasssuite.data.GitHubApi.owner = AppConfig.ghOwner
-                    com.kun.glasssuite.data.GitHubApi.repo = AppConfig.ghRepo
-                    scope.launch {
-                        app.settings.setGhRepo(AppConfig.ghOwner, AppConfig.ghRepo)
-                        savedMsg = "GitHub 仓库已保存：${AppConfig.ghOwner}/${AppConfig.ghRepo}"
-                    }
-                },
-                modifier = Modifier.fillMaxWidth(),
-            ) { Text("保存 GitHub 仓库") }
 
-            // 歌词设置
-            SectionTitle("歌词设置")
-            Text("歌词字号：${settings.lyricFontSize}sp", style = MaterialTheme.typography.bodyMedium)
-            Slider(
-                value = settings.lyricFontSize.toFloat(),
-                onValueChange = {
-                    AppConfig.lyricFontSize = it.toInt()
-                    scope.launch { app.settings.setLyricFontSize(it.toInt()) }
-                },
-                valueRange = 12f..32f,
-                steps = 19,
-            )
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("歌词时间偏移：${settings.lyricOffsetMs / 1000.0}s", Modifier.weight(1f))
-                TextButton(onClick = {
-                    AppConfig.lyricOffsetMs = 0
-                    scope.launch { app.settings.setLyricOffset(0) }
-                }) { Text("复位") }
-            }
-            Text("歌词模式", style = MaterialTheme.typography.bodyMedium)
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                val modes = listOf("原词", "翻译", "罗马音", "DIY")
-                modes.forEachIndexed { i, name ->
-                    FilterChip(
-                        selected = settings.lyricMode == i,
-                        onClick = {
-                            AppConfig.lyricMode = i
-                            scope.launch { app.settings.setLyricMode(i) }
-                        },
-                        label = { Text(name) },
-                    )
-                }
-            }
-            OutlinedTextField(
-                value = diyText,
-                onValueChange = { diyText = it },
-                label = { Text("DIY 歌词（LRC 格式，粘贴后保存）") },
-                minLines = 4,
-                modifier = Modifier.fillMaxWidth(),
-            )
-            OutlinedButton(
-                onClick = {
-                    AppConfig.diyLyric = diyText
-                    scope.launch { app.settings.setDiyLyric(diyText) }
-                    savedMsg = "DIY 歌词已保存"
-                },
-                modifier = Modifier.fillMaxWidth(),
-            ) { Text("保存 DIY 歌词") }
-
-            // 关于与法律
+            // ===== 关于与法律 =====
             SectionTitle("关于与法律")
+            Text(
+                "版本 v${UpdateChecker.VERSION_NAME} · 联系邮箱：jiangtengqiao@qq.com",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
             LEGAL_DOCS.forEach { (title, _) ->
                 Row(
                     Modifier
@@ -309,12 +242,6 @@ fun SettingsScreen(onBack: () -> Unit, onOpenBeta: () -> Unit = {}) {
                 HorizontalDivider()
             }
             Spacer(Modifier.height(24.dp))
-            Text(
-                "璃光 GlassSuite v1.0.0\n仅供学习交流使用",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.fillMaxWidth(),
-            )
         }
     }
 
@@ -354,6 +281,6 @@ private fun SectionTitle(text: String) {
         style = MaterialTheme.typography.titleMedium,
         fontWeight = FontWeight.Bold,
         color = MaterialTheme.colorScheme.primary,
-        modifier = Modifier.padding(top = 8.dp),
+        modifier = Modifier.padding(top = 6.dp),
     )
 }

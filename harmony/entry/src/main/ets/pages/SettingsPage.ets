@@ -294,7 +294,7 @@ struct SettingsPage {
             })
           }, (doc: LegalDoc) => doc.file)
 
-          Text('璃光 GlassSuite v1.0.0\n仅供学习交流使用')
+          Text('璃光 GlassSuite v1.1.0\n仅供学习交流使用')
             .fontSize(12)
             .fontColor('#BBBBBB')
             .textAlign(TextAlign.Center)

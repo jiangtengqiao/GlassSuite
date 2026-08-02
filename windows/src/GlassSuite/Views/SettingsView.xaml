@@ -76,7 +76,7 @@
                 <Button Tag="09-用户行为规范.txt" Click="LegalDoc_Click" Content="用户行为规范" HorizontalAlignment="Left" />
             </StackPanel>
 
-            <TextBlock Text="璃光 GlassSuite v1.0.0 · 仅供学习交流使用"
+            <TextBlock Text="璃光 GlassSuite v1.1.0 · 仅供学习交流使用"
                        FontSize="12" Foreground="{StaticResource SubTextBrush}" Margin="0,24,0,12" />
         </StackPanel>
     </ScrollViewer>

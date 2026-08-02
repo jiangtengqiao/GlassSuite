@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.PlaylistPlay
 import androidx.compose.material.icons.filled.Settings
@@ -85,6 +86,8 @@ fun UserScreen(actions: MainActions) {
                         MenuItem(Icons.Default.Favorite, "我喜欢") { actions.onOpenLiked() }
                         Spacer(Modifier.width(12.dp))
                         MenuItem(Icons.Default.Settings, "设置") { actions.onOpenSettings() }
+                        Spacer(Modifier.width(12.dp))
+                        MenuItem(Icons.Default.Info, "音乐协议") { actions.onOpenMusicAgreement() }
                     }
                 }
                 item {

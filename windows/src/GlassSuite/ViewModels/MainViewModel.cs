@@ -860,7 +860,7 @@ public partial class MainViewModel : ObservableObject
             if (latest != null)
             {
                 var betaOk = BetaAccess || !IsPreRelease(latest.TagName);
-                HasUpdate = betaOk && IsNewer(latest.TagName, "1.1.0-beta.1");
+                HasUpdate = betaOk && IsNewer(latest.TagName, "1.1.0");
             }
         }
         catch

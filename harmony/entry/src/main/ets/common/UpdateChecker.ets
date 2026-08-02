@@ -13,7 +13,7 @@ export class UpdateChecker {
     return UpdateChecker.instance;
   }
 
-  static VERSION: string = '1.1.0-beta.1';
+  static VERSION: string = '1.1.0';
   static INTERVAL_MS: number = 30 * 60 * 1000;
 
   latest: GitHubRelease | undefined = undefined;

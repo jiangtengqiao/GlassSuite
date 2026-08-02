@@ -49,7 +49,7 @@ struct BetaPage {
     BetaStore.verify(this.keyInput.trim()).then((ok: boolean) => {
       this.activateColor = ok ? '#00B578' : '#E84026';
       this.activateMsg = ok
-        ? '✅ 尝鲜码有效，已激活！可接收 Beta 版推送（当前 v1.1.0-beta.1）'
+        ? '✅ 尝鲜码有效，已激活！可接收 Beta 版推送（当前 v1.1.0）'
         : '❌ 尝鲜码无效或已被停用，请核对后重试';
     });
   }

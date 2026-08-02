@@ -1,5 +1,6 @@
 package com.kun.glasssuite.ui.glass
 
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -19,6 +20,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -58,32 +60,51 @@ fun GlassBackground(
             )
         )
     }
+    // 氛围光斑呼吸动效（液态玻璃的通透感）
+    val transition = androidx.compose.animation.core.rememberInfiniteTransition()
+    val pulse by transition.animateFloat(
+        initialValue = 0.72f,
+        targetValue = 1.0f,
+        animationSpec = androidx.compose.animation.core.infiniteRepeatable(
+            animation = androidx.compose.animation.core.tween(2600),
+            repeatMode = androidx.compose.animation.core.RepeatMode.Reverse,
+        ),
+    )
+    val drift by transition.animateFloat(
+        initialValue = 0.94f,
+        targetValue = 1.0f,
+        animationSpec = androidx.compose.animation.core.infiniteRepeatable(
+            animation = androidx.compose.animation.core.tween(3600),
+            repeatMode = androidx.compose.animation.core.RepeatMode.Reverse,
+        ),
+    )
     Box(
         Modifier
             .fillMaxSize()
             .background(brush)
     ) {
-        // 氛围光斑
+        // 光斑 1（顶部右侧，红色系，呼吸）
         Box(
             Modifier
-                .size(260.dp)
+                .size((260f * pulse).dp)
                 .clip(CircleShape)
-                .background(if (dark) Color(0x33EC4141) else Color(0x1FEC4141))
+                .background(if (dark) Color(0x38EC4141) else Color(0x24EC4141))
                 .align(Alignment.TopEnd)
-                .padding(0.dp)
         )
+        // 光斑 2（底部左侧，蓝色系，漂移）
         Box(
             Modifier
-                .size(220.dp)
+                .size((220f * drift).dp)
                 .clip(CircleShape)
-                .background(if (dark) Color(0x2E3D7FFF) else Color(0x1E3D7FFF))
+                .background(if (dark) Color(0x334D7FFF) else Color(0x223D7FFF))
                 .align(Alignment.BottomStart)
         )
+        // 光斑 3（中间偏右，绿色系，微呼吸）
         Box(
             Modifier
-                .size(140.dp)
+                .size((150f * pulse).dp)
                 .clip(CircleShape)
-                .background(if (dark) Color(0x2E00B578) else Color(0x1C00B578))
+                .background(if (dark) Color(0x3300B578) else Color(0x2000B578))
                 .align(Alignment.CenterEnd)
         )
         content()
@@ -98,15 +119,28 @@ fun GlassCard(
     corner: Dp = 20.dp,
     content: @Composable () -> Unit,
 ) {
-    val bg = if (dark) Color.White.copy(alpha = 0.07f) else Color.White.copy(alpha = 0.55f)
-    val border = if (dark) Color.White.copy(alpha = 0.16f) else Color.White.copy(alpha = 0.9f)
+    val bg = if (dark) Color.White.copy(alpha = 0.07f) else Color.White.copy(alpha = 0.58f)
+    val border = if (dark) Color.White.copy(alpha = 0.18f) else Color.White.copy(alpha = 0.95f)
     Box(
         modifier = modifier
-            .shadow(12.dp, RoundedCornerShape(corner), ambientColor = Color(0x22000000), spotColor = Color(0x22000000))
+            .shadow(14.dp, RoundedCornerShape(corner), ambientColor = Color(0x2E000000), spotColor = Color(0x2E000000))
             .clip(RoundedCornerShape(corner))
             .background(bg)
             .border(1.dp, border, RoundedCornerShape(corner)),
     ) {
+        // 顶部高光线（玻璃反光）
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .height(1.5.dp)
+                .background(
+                    Brush.horizontalGradient(
+                        listOf(Color.Transparent, Color.White.copy(alpha = 0.85f), Color.Transparent)
+                    )
+                )
+                .align(Alignment.TopCenter)
+                .padding(horizontal = 14.dp),
+        )
         content()
     }
 }
