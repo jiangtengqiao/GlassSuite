@@ -1,13 +1,13 @@
-# 乐云音乐 CloudMusic — 三端音乐应用
+# 璃光 GlassSuite — 多功能应用套件
 
 ![平台](https://img.shields.io/badge/平台-Android%20%7C%20HarmonyOS%20%7C%20Windows-blue)
 ![版本](https://img.shields.io/badge/版本-v1.0.0-red)
 ![许可](https://img.shields.io/badge/许可-MIT-green)
-[![Release](https://img.shields.io/badge/下载-Releases-blueviolet)](https://github.com/jiangtengqiao/CloudMusic/releases)
+[![Release](https://img.shields.io/badge/下载-Releases-blueviolet)](https://github.com/jiangtengqiao/GlassSuite/releases)
 
-> 开箱即用：**Windows 包、Android APK、HarmonyOS 源码包** 均发布在 [Releases](https://github.com/jiangtengqiao/CloudMusic/releases)，打 tag 即自动构建发布。
+> 开箱即用：**Windows 包、Android APK、HarmonyOS 源码包** 均发布在 [Releases](https://github.com/jiangtengqiao/GlassSuite/releases)，打 tag 即自动构建发布。
 
-一个功能真实一致、可真实运行的音乐应用，覆盖 **Android / HarmonyOS / Windows** 三端。音乐数据经自托管的网易云音乐接口服务（NeteaseCloudMusicApi）实时拉取，支持真实在线播放、实时歌词、扫码/验证码登录、歌单、搜索、收藏点赞、锁屏媒体控制、主题定制等完整音乐功能。
+一个功能真实一致、可真实运行的多功能应用套件（音乐只是模块之一），覆盖 **Android / HarmonyOS / Windows** 三端。音乐数据经自托管的网易云音乐接口服务（NeteaseCloudMusicApi）实时拉取，支持真实在线播放、实时歌词、扫码/验证码登录、歌单、搜索、收藏点赞、锁屏媒体控制、主题定制等完整音乐功能。
 
 > ⚠️ **合规提示**：本项目仅供学习交流使用。音乐内容版权归网易云音乐及相应权利人所有；对外发布前请替换 `docs/legal/` 中的占位符并取得必要授权。
 
@@ -38,7 +38,7 @@
 ## 快速开始
 
 ### 从 Releases 下载
-在 [Releases](https://github.com/jiangtengqiao/CloudMusic/releases) 页获取各平台产物：
+在 [Releases](https://github.com/jiangtengqiao/GlassSuite/releases) 页获取各平台产物：
 - `*.apk` → Android 直接安装；
 - `CloudMusic-win-x64.zip` → 解压运行（需 .NET 10 Desktop Runtime）；
 - `harmony-source.tar.gz` → DevEco Studio 打开构建 HAP。

@@ -44,7 +44,7 @@ jobs:
           dotnet-version: '10.0.x'
       - name: 发布（win-x64，框架依赖）
         run: |
-          dotnet publish windows/src/CloudMusic/CloudMusic.csproj -c Release -r win-x64 --self-contained false -o publish/CloudMusic-win-x64
+          dotnet publish windows/src/GlassSuite/CloudMusic.csproj -c Release -r win-x64 --self-contained false -o publish/CloudMusic-win-x64
       - name: 打包 ZIP
         run: Compress-Archive -Path publish/CloudMusic-win-x64 -DestinationPath publish/CloudMusic-win-x64.zip
       - uses: actions/upload-artifact@v4

@@ -44,9 +44,9 @@ jobs:
         with:
           dotnet-version: '10.0.x'
       - name: 构建
-        run: dotnet build windows/src/CloudMusic/CloudMusic.csproj -c Release
+        run: dotnet build windows/src/GlassSuite/CloudMusic.csproj -c Release
       - uses: actions/upload-artifact@v4
         with:
           name: windows-build
-          path: windows/src/CloudMusic/bin/Release/
+          path: windows/src/GlassSuite/bin/Release/
           if-no-files-found: error

@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.kun.cloudmusic"
+    namespace = "com.kun.glasssuite"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.kun.cloudmusic"
+        applicationId = "com.kun.glasssuite"
         minSdk = 26
         targetSdk = 35
         versionCode = 1
@@ -53,6 +53,7 @@ dependencies {
 
     implementation(libs.androidx.media3.exoplayer)
     implementation(libs.androidx.media3.session)
+    implementation(libs.androidx.media3.ui)
 
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.gson)

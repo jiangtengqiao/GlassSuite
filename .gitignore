@@ -23,8 +23,8 @@ harmony/**/.preview/
 *.hap
 
 # ===== Windows =====
-windows/src/CloudMusic/bin/
-windows/src/CloudMusic/obj/
+windows/src/GlassSuite/bin/
+windows/src/GlassSuite/obj/
 windows/publish/
 *.user
 *.suo
