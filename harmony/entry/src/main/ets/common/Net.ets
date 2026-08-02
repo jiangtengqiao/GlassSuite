@@ -122,6 +122,46 @@ export class Net {
     }
   }
 
+  /** 通用 JSON 请求（GitHub 等外部 API，支持数组返回） */
+  static async fetchJson(url: string): Promise<Object> {
+    const httpRequest = http.createHttp();
+    try {
+      const res: http.HttpResponse = await httpRequest.request(url, {
+        method: http.RequestMethod.GET,
+        header: { 'User-Agent': 'GlassSuite' },
+        expectDataType: http.HttpDataType.JSON,
+        connectTimeout: 15000,
+        readTimeout: 30000
+      });
+      if (res.responseCode !== 200) {
+        throw new Error(`HTTP ${res.responseCode}`);
+      }
+      return JSON.parse(res.result as string) as Object;
+    } finally {
+      httpRequest.destroy();
+    }
+  }
+
+  /** 通用文本请求（公告 md 等） */
+  static async fetchText(url: string): Promise<string> {
+    const httpRequest = http.createHttp();
+    try {
+      const res: http.HttpResponse = await httpRequest.request(url, {
+        method: http.RequestMethod.GET,
+        header: { 'User-Agent': 'GlassSuite' },
+        expectDataType: http.HttpDataType.STRING,
+        connectTimeout: 15000,
+        readTimeout: 30000
+      });
+      if (res.responseCode !== 200) {
+        throw new Error(`HTTP ${res.responseCode}`);
+      }
+      return res.result as string;
+    } finally {
+      httpRequest.destroy();
+    }
+  }
+
   /** 二进制下载（封面、MV 无需；二维码 base64 由 JSON 返回） */
   static async fetchBuffer(url: string): Promise<ArrayBuffer> {
     const httpRequest = http.createHttp();

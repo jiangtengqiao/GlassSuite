@@ -18,6 +18,9 @@ struct SettingsPage {
   @State lyricOffset: number = Constants.lyricOffsetMs;
   @State lyricMode: number = Constants.lyricMode;
   @State diyText: string = Constants.diyLyric;
+  @State themeMode: number = 0;
+  @State ghOwner: string = Constants.ghOwner;
+  @State ghRepo: string = Constants.ghRepo;
   @State savedMsg: string = '';
   @State showDoc: boolean = false;
   @State docTitle: string = '';
@@ -156,6 +159,52 @@ struct SettingsPage {
           }
           .padding({ top: 4 })
 
+          // 外观模式（三态）
+          Text('外观模式').fontSize(14).fontWeight(FontWeight.Bold).fontColor('#C62F2F').margin({ top: 8 })
+          Row({ space: 8 }) {
+            ForEach(['跟随系统', '浅色', '深色'], (name: string, idx: number) => {
+              Text(name)
+                .fontSize(13)
+                .fontColor(this.themeMode === idx ? '#FFFFFF' : '#666666')
+                .backgroundColor(this.themeMode === idx ? '#C62F2F' : '#F2F2F2')
+                .borderRadius(14)
+                .padding({ left: 14, right: 14, top: 5, bottom: 5 })
+                .onClick(() => {
+                  this.themeMode = idx;
+                  Net.put('theme_mode', idx);
+                })
+            }, (name: string, idx: number) => `${name}-${idx}`)
+          }
+
+          // GitHub 仓库（更新/公告数据源）
+          Text('GitHub 仓库').fontSize(14).fontWeight(FontWeight.Bold).fontColor('#C62F2F').margin({ top: 8 })
+          Row({ space: 8 }) {
+            TextInput({ text: this.ghOwner, placeholder: 'Owner' })
+              .layoutWeight(1)
+              .height(40)
+              .borderRadius(8)
+              .onChange((v: string) => {
+                this.ghOwner = v;
+              })
+            TextInput({ text: this.ghRepo, placeholder: 'Repo' })
+              .layoutWeight(1)
+              .height(40)
+              .borderRadius(8)
+              .onChange((v: string) => {
+                this.ghRepo = v;
+              })
+          }
+          Button('保存 GitHub 仓库')
+            .backgroundColor('#C62F2F')
+            .width('100%')
+            .onClick(() => {
+              Constants.ghOwner = this.ghOwner.trim();
+              Constants.ghRepo = this.ghRepo.trim();
+              Net.put('gh_owner', Constants.ghOwner);
+              Net.put('gh_repo', Constants.ghRepo);
+              promptAction.showToast({ message: `已保存：${Constants.ghOwner}/${Constants.ghRepo}` });
+            })
+
           // 歌词设置
           Text('歌词设置').fontSize(14).fontWeight(FontWeight.Bold).fontColor('#C62F2F').margin({ top: 8 })
           Row({ space: 8 }) {
@@ -220,7 +269,7 @@ struct SettingsPage {
             })
           }, (doc: LegalDoc) => doc.file)
 
-          Text('乐云音乐 CloudMusic v1.0.0\n仅供学习交流使用')
+          Text('璃光 GlassSuite v1.0.0\n仅供学习交流使用')
             .fontSize(12)
             .fontColor('#BBBBBB')
             .textAlign(TextAlign.Center)

@@ -120,7 +120,10 @@ struct HomePage {
   build() {
     Column() {
       Row() {
-        Text('发现音乐').fontSize(20).fontWeight(FontWeight.Bold)
+        Text('‹ 返回').fontSize(14).fontColor('#666666').onClick(() => {
+          router.back();
+        })
+        Text('音乐').fontSize(20).fontWeight(FontWeight.Bold).margin({ left: 14 })
         Blank()
         Button('搜索')
           .fontSize(14)
@@ -296,17 +299,25 @@ struct HomePage {
         .padding({ left: 16, right: 16, top: 16 })
 
         Row({ space: 12 }) {
-          Button('我喜欢')
-            .backgroundColor('#C62F2F')
-            .onClick(() => {
-              router.pushUrl({ url: 'pages/LikedPage' });
-            })
-          Button('退出登录')
-            .backgroundColor('#F2F2F2')
-            .fontColor('#E84026')
-            .onClick(() => {
-              this.logout();
-            })
+          if (Constants.isLoggedIn()) {
+            Button('我喜欢')
+              .backgroundColor('#C62F2F')
+              .onClick(() => {
+                router.pushUrl({ url: 'pages/LikedPage' });
+              })
+            Button('退出登录')
+              .backgroundColor('#F2F2F2')
+              .fontColor('#E84026')
+              .onClick(() => {
+                this.logout();
+              })
+          } else {
+            Button('去登录')
+              .backgroundColor('#C62F2F')
+              .onClick(() => {
+                router.pushUrl({ url: 'pages/LoginPage' });
+              })
+          }
         }
         .width('100%')
         .padding({ left: 16, right: 16 })

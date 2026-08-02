@@ -81,7 +81,7 @@ struct LoginPage {
     Net.put('profile_json', Constants.profileJson);
     if (this.timer >= 0) clearInterval(this.timer);
     promptAction.showToast({ message: '登录成功' });
-    router.replaceUrl({ url: 'pages/HomePage' });
+    router.back();
   }
 
   sendCode(): void {

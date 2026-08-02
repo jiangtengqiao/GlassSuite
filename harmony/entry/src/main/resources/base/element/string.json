@@ -2,15 +2,15 @@
   "string": [
     {
       "name": "module_desc",
-      "value": "乐云音乐主模块"
+      "value": "璃光 GlassSuite主模块"
     },
     {
       "name": "EntryAbility_desc",
-      "value": "乐云音乐"
+      "value": "璃光 GlassSuite"
     },
     {
       "name": "EntryAbility_label",
-      "value": "乐云音乐"
+      "value": "璃光 GlassSuite"
     }
   ]
 }

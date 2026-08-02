@@ -1,5 +1,5 @@
 /**
- * API 接口封装：与 NeteaseCloudMusicApi 端点一一对应
+ * API 接口封装：与 NeteaseGlassSuiteApi 端点一一对应
  */
 import { Net } from './Net';
 import {

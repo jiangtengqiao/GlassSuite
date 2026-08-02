@@ -11,6 +11,17 @@
 
 > ⚠️ **合规提示**：本项目仅供学习交流使用。音乐内容版权归网易云音乐及相应权利人所有；对外发布前请替换 `docs/legal/` 中的占位符并取得必要授权。
 
+## 📦 产物下载（Releases）
+
+| 平台 | 产物 | 下载 |
+|---|---|---|
+| Android | `GlassSuite-v1.1.0.apk` | [GitHub Releases](https://github.com/jiangtengqiao/GlassSuite/releases) |
+| Windows | `GlassSuite-win-x64.zip` | [GitHub Releases](https://github.com/jiangtengqiao/GlassSuite/releases) |
+| HarmonyOS | `harmony-source.tar.gz`（DevEco 构建 HAP） | [GitHub Releases](https://github.com/jiangtengqiao/GlassSuite/releases) |
+
+> 打 tag（`git tag vX.Y.Z && git push origin vX.Y.Z`）即自动构建发布新产物。
+> 网络受限时可使用镜像加速：`https://ghproxy.net/https://github.com/jiangtengqiao/GlassSuite/releases`
+
 ## 功能总览
 
 | 功能 | 说明 |

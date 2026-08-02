@@ -23,6 +23,8 @@ export class Constants {
   static quality: string = 'exhigh';
   static userId: number = 0;
   static profileJson: string = '';
+  static ghOwner: string = 'jiangtengqiao';
+  static ghRepo: string = 'GlassSuite';
 
   static isLoggedIn(): boolean {
     return Constants.userId > 0;

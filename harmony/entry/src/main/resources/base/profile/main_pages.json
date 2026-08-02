@@ -1,6 +1,10 @@
 {
   "src": [
     "pages/IndexPage",
+    "pages/GlassHomePage",
+    "pages/GitHubPage",
+    "pages/UpdateCenterPage",
+    "pages/AnnouncementPage",
     "pages/LoginPage",
     "pages/HomePage",
     "pages/SearchPage",
