@@ -1,10 +1,11 @@
 name: Release
 
-# 打 tag 即发布：git tag v1.0.0 && git push origin v1.0.0
+# 打 tag 即自动发布（推荐）；也可在 Actions 页手动触发
 on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -22,16 +23,20 @@ jobs:
       - name: 安装 Android SDK 35
         run: |
           yes | sdkmanager --licenses >/dev/null 2>&1 || true
-          sdkmanager "platforms;android-35" >/dev/null 2>&1 || true
-      - name: 构建 Release APK（未签名）
+          sdkmanager "platforms;android-35" "build-tools;34.0.0" >/dev/null 2>&1 || true
+      - name: 构建 APK（debug 签名，可直接安装）
         working-directory: android
         run: |
           chmod +x gradlew
-          ./gradlew assembleRelease --no-daemon
+          ./gradlew assembleDebug --no-daemon
+      - name: 重命名 APK
+        run: |
+          mkdir -p dist
+          cp android/app/build/outputs/apk/debug/app-debug.apk dist/GlassSuite-${{ github.ref_name }}.apk
       - uses: actions/upload-artifact@v4
         with:
-          name: apk-release
-          path: android/app/build/outputs/apk/release/*.apk
+          name: apk
+          path: dist/*.apk
           if-no-files-found: error
 
   windows:
@@ -45,12 +50,14 @@ jobs:
       - name: 发布（win-x64，框架依赖）
         run: |
           dotnet publish windows/src/GlassSuite/GlassSuite.csproj -c Release -r win-x64 --self-contained false -o publish/GlassSuite-win-x64
-      - name: 打包 ZIP
-        run: Compress-Archive -Path publish/GlassSuite-win-x64 -DestinationPath publish/GlassSuite-win-x64.zip
+      - name: 裁剪冗余架构并打包 ZIP
+        run: |
+          Remove-Item -Recurse -Force publish/GlassSuite-win-x64/libvlc/win-x86
+          Compress-Archive -Path publish/GlassSuite-win-x64 -DestinationPath dist/GlassSuite-win-x64-${{ github.ref_name }}.zip
       - uses: actions/upload-artifact@v4
         with:
-          name: windows-package
-          path: publish/GlassSuite-win-x64.zip
+          name: windows
+          path: dist/*.zip
           if-no-files-found: error
 
   harmony:
@@ -60,11 +67,12 @@ jobs:
       - uses: actions/checkout@v4
       - name: 打包 HarmonyOS 工程源码
         run: |
-          tar -czf harmony-source.tar.gz harmony
+          mkdir -p dist
+          tar -czf dist/harmony-source-${{ github.ref_name }}.tar.gz harmony
       - uses: actions/upload-artifact@v4
         with:
-          name: harmony-source
-          path: harmony-source.tar.gz
+          name: harmony
+          path: dist/*.tar.gz
           if-no-files-found: error
 
   release:
@@ -75,31 +83,30 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           path: artifacts
-      - name: 组装 Release
+      - name: 组装 Release 资产
         run: |
           mkdir -p assets
-          find artifacts -name "*.apk" -exec cp {} assets/ \;
-          find artifacts -name "*.zip" -exec cp {} assets/ \;
-          find artifacts -name "*.tar.gz" -exec cp {} assets/ \;
+          find artifacts -type f \( -name "*.apk" -o -name "*.zip" -o -name "*.tar.gz" \) -exec cp {} assets/ \;
           ls -la assets/
       - uses: softprops/action-gh-release@v2
         with:
           files: assets/*
           generate_release_notes: true
           draft: false
-          # 版本策略：未成型版本一律 beta 标记（tag 含 beta/rc/alpha → 预发布）
+          # 版本策略：未成型一律 beta 标记（tag 含 beta/rc/alpha → pre-release）
           # 仅正式版本（如 v1.1.0）使用正式 Release 标签
           prerelease: ${{ contains(github.ref_name, 'beta') || contains(github.ref_name, 'rc') || contains(github.ref_name, 'alpha') }}
           body: |
             ## 璃光 GlassSuite 发布说明
 
-            - **Android**：`*.apk`（Release 未签名包，安装前请允许「未知来源」；正式分发请配置签名）
-            - **Windows**：`CloudMusic-win-x64.zip`（win-x64，需安装 [.NET 10 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/10.0)）
-            - **HarmonyOS**：`harmony-source.tar.gz`（DevEco Studio 打开 `harmony/` 目录构建 HAP，需 API 12+ 与华为签名配置）
+            - **Android**：`GlassSuite-<版本>.apk`（debug 签名，可直接安装）
+            - **Windows**：`GlassSuite-win-x64-<版本>.zip`（win-x64，需 [.NET 10 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/10.0)）
+            - **HarmonyOS**：`harmony-source-<版本>.tar.gz`（DevEco Studio 打开 `harmony/` 构建 HAP，API 12+）
 
             ### 使用步骤
-            1. 部署 API 服务：`cd server && docker compose up -d`（或源码运行，详见 README）
-            2. 在应用「设置 → 服务器地址」配置 API 地址
-            3. 扫码 / 验证码登录后即可使用
+            1. 部署接口服务：`cd server && docker compose up -d`
+            2. 部署尝鲜系统：`cd server/beta-server && npm install && node server.js`
+            3. 应用「设置」配置服务器地址与 Beta 服务器地址
+            4. 音乐模块扫码/验证码登录；「开发者尝鲜」可申请尝鲜码体验 Beta 推送
 
             > 仅供学习交流使用；音乐内容版权归网易云音乐及权利人所有。
