@@ -26,6 +26,7 @@ export class Net {
       Constants.quality = p.getSync('quality', 'exhigh') as string;
       Constants.userId = p.getSync('user_id', 0) as number;
       Constants.profileJson = p.getSync('profile_json', '') as string;
+      Constants.betaKey = p.getSync('beta_key', '') as string;
     }).catch((err: BusinessError) => {
       console.error(`[Net] init error: ${err.code} ${err.message}`);
     });
@@ -117,6 +118,30 @@ export class Net {
         throw new Error('需要登录');
       }
       return obj;
+    } finally {
+      httpRequest.destroy();
+    }
+  }
+
+  /** 通用 JSON POST（Beta 尝鲜系统等） */
+  static async postJson(url: string, body: Record<string, string>): Promise<Object> {
+    const httpRequest = http.createHttp();
+    try {
+      const res: http.HttpResponse = await httpRequest.request(url, {
+        method: http.RequestMethod.POST,
+        header: {
+          'Content-Type': 'application/json',
+          'User-Agent': 'GlassSuite'
+        },
+        extraData: JSON.stringify(body),
+        expectDataType: http.HttpDataType.JSON,
+        connectTimeout: 15000,
+        readTimeout: 30000
+      });
+      if (res.responseCode !== 200 && res.responseCode !== 201) {
+        throw new Error(`HTTP ${res.responseCode}`);
+      }
+      return JSON.parse(res.result as string) as Object;
     } finally {
       httpRequest.destroy();
     }

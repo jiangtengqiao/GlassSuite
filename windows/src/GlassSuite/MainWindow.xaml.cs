@@ -125,6 +125,7 @@ public partial class MainWindow : Window
             "github" => GetOrCreate("github", () => new GitHubView(_vm)),
             "updates" => GetOrCreate("updates", () => new UpdateCenterView(_vm)),
             "announcements" => GetOrCreate("announcements", () => new AnnouncementView(_vm)),
+            "beta" => GetOrCreate("beta", () => new BetaView(_vm)),
             "home" => GetOrCreate("home", () => new HomeView(_vm)),
             "search" => GetOrCreate("search", () => new SearchView(_vm)),
             "user" => GetOrCreate("user", () =>
@@ -133,7 +134,12 @@ public partial class MainWindow : Window
                 uv.SettingsRequested += (_, _) => ShowView("settings");
                 return uv;
             }),
-            "settings" => GetOrCreate("settings", () => new SettingsView(_vm)),
+            "settings" => GetOrCreate("settings", () =>
+            {
+                var sv = new SettingsView(_vm);
+                sv.BetaRequested += (_, _) => ShowView("beta");
+                return sv;
+            }),
             "playlist" => GetOrCreate("playlist", () => new PlaylistView(_vm)),
             "detail" => GetOrCreate("detail", () => new DetailView(_vm)),
             _ => new TextBlock { Text = key, Margin = new Thickness(20) },

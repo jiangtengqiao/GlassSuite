@@ -17,6 +17,7 @@ public partial class SettingsView : UserControl
         DataContext = vm;
         ApiBox.Text = _vm.ApiUrl;
         DiyBox.Text = _vm.DiyLyric;
+        BetaUrlBox.Text = _vm.BetaServerUrl;
     }
 
     private void SaveApi_Click(object sender, RoutedEventArgs e)
@@ -65,6 +66,19 @@ public partial class SettingsView : UserControl
             ShowDoc(file);
         }
     }
+
+    private void Beta_Click(object sender, RoutedEventArgs e)
+    {
+        BetaRequested?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void SaveBetaUrl_Click(object sender, RoutedEventArgs e)
+    {
+        _vm.BetaServerUrl = BetaUrlBox.Text.Trim();
+        _vm.SaveBetaServer();
+    }
+
+    public event EventHandler? BetaRequested;
 
     private void ShowDoc(string file)
     {

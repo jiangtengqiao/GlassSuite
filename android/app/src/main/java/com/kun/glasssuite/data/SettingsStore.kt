@@ -21,6 +21,8 @@ data class Settings(
     val themeMode: Int = 0,
     val ghOwner: String = "jiangtengqiao",
     val ghRepo: String = "GlassSuite",
+    val betaServerUrl: String = "http://10.0.2.2:3100",
+    val betaKey: String = "",
     val lyricFontSize: Int = 18,
     val lyricOffsetMs: Int = 0,
     val lyricMode: Int = 0,
@@ -39,6 +41,8 @@ class SettingsStore(private val context: Context) {
         val THEME_MODE = intPreferencesKey("theme_mode")
         val GH_OWNER = stringPreferencesKey("gh_owner")
         val GH_REPO = stringPreferencesKey("gh_repo")
+        val BETA_URL = stringPreferencesKey("beta_url")
+        val BETA_KEY = stringPreferencesKey("beta_key")
         val LYRIC_SIZE = intPreferencesKey("lyric_size")
         val LYRIC_OFFSET = intPreferencesKey("lyric_offset")
         val LYRIC_MODE = intPreferencesKey("lyric_mode")
@@ -56,6 +60,8 @@ class SettingsStore(private val context: Context) {
             themeMode = p[Keys.THEME_MODE] ?: 0,
             ghOwner = p[Keys.GH_OWNER] ?: "jiangtengqiao",
             ghRepo = p[Keys.GH_REPO] ?: "GlassSuite",
+            betaServerUrl = p[Keys.BETA_URL] ?: "http://10.0.2.2:3100",
+            betaKey = p[Keys.BETA_KEY] ?: "",
             lyricFontSize = p[Keys.LYRIC_SIZE] ?: 18,
             lyricOffsetMs = p[Keys.LYRIC_OFFSET] ?: 0,
             lyricMode = p[Keys.LYRIC_MODE] ?: 0,
@@ -80,6 +86,10 @@ class SettingsStore(private val context: Context) {
         it[Keys.GH_OWNER] = owner.trim()
         it[Keys.GH_REPO] = repo.trim()
     }
+
+    suspend fun setBetaServer(url: String) = context.dataStore.edit { it[Keys.BETA_URL] = url.trim() }
+
+    suspend fun setBetaKey(key: String) = context.dataStore.edit { it[Keys.BETA_KEY] = key }
 
     suspend fun setLyricFontSize(v: Int) = context.dataStore.edit { it[Keys.LYRIC_SIZE] = v }
 

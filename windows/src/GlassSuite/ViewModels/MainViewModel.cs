@@ -1,3 +1,4 @@
+using System.Net.Http;
 using System.Collections.ObjectModel;
 using System.Text.Json;
 using System.Windows.Threading;
@@ -39,6 +40,9 @@ public partial class MainViewModel : ObservableObject
         DiyLyric = _settings.DiyLyric;
         UserId = _settings.UserId;
         ProfileJson = _settings.ProfileJson;
+        BetaServerUrl = _settings.BetaServerUrl;
+        BetaKey = _settings.BetaKey;
+        BetaAccess = !string.IsNullOrEmpty(_settings.BetaKey);
 
         if (UserId > 0)
         {
@@ -132,6 +136,9 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty] private List<GitHubRelease> _releases = new();
     [ObservableProperty] private List<AnnouncementItem> _announcements = new();
     [ObservableProperty] private bool _hasUpdate;
+    [ObservableProperty] private string _betaServerUrl = "http://localhost:3100";
+    [ObservableProperty] private string _betaKey = "";
+    [ObservableProperty] private bool _betaAccess;
     [ObservableProperty] private string _gitHubQuery = "";
     [ObservableProperty] private string _gitHubStatus = "";
     [ObservableProperty] private List<ReleaseRow> _releaseRows = new();
@@ -178,6 +185,8 @@ public partial class MainViewModel : ObservableObject
         _settings.Quality = Quality;
         _settings.UserId = UserId;
         _settings.ProfileJson = ProfileJson;
+        _settings.BetaServerUrl = BetaServerUrl;
+        _settings.BetaKey = BetaKey;
         _settings.Cookie = _api.GetCookieString();
         _settingsSvc.Save(_settings);
     }
@@ -850,13 +859,77 @@ public partial class MainViewModel : ObservableObject
             var latest = list.FirstOrDefault();
             if (latest != null)
             {
-                HasUpdate = IsNewer(latest.TagName, "1.1.0");
+                var betaOk = BetaAccess || !IsPreRelease(latest.TagName);
+                HasUpdate = betaOk && IsNewer(latest.TagName, "1.1.0-beta.1");
             }
         }
         catch
         {
         }
         return HasUpdate;
+    }
+
+    // ==================== 开发者尝鲜 ====================
+
+    private HttpClient BetaHttp() => new() { BaseAddress = new Uri(BetaServerUrl.TrimEnd('/') + "/"), Timeout = TimeSpan.FromSeconds(20) };
+
+    public async Task<BetaRequirements> GetBetaRequirementsAsync()
+    {
+        try
+        {
+            using var c = BetaHttp();
+            var r = await c.GetAsync("requirements");
+            if (!r.IsSuccessStatusCode) return new();
+            var d = System.Text.Json.JsonSerializer.Deserialize<BetaRequirements>(await r.Content.ReadAsStringAsync());
+            return d ?? new();
+        }
+        catch { return new(); }
+    }
+
+    public async Task<BetaApplyResult> ApplyBetaAsync(string email, string name, string purpose, string reason, string device)
+    {
+        try
+        {
+            using var c = BetaHttp();
+            var body = System.Text.Json.JsonSerializer.Serialize(new { email, name, purpose, reason, device });
+            var r = await c.PostAsync("apply", new StringContent(body, System.Text.Encoding.UTF8, "application/json"));
+            if (!r.IsSuccessStatusCode) return new() { Status = "error", Message = "服务不可达，请检查 Beta 服务器地址" };
+            var d = System.Text.Json.JsonSerializer.Deserialize<BetaApplyResult>(await r.Content.ReadAsStringAsync()) ?? new();
+            if (d.Status == "approved" && !string.IsNullOrEmpty(d.Key))
+            {
+                BetaKey = d.Key;
+                BetaAccess = true;
+                SaveSettings();
+            }
+            return d;
+        }
+        catch { return new() { Status = "error", Message = "服务不可达" }; }
+    }
+
+    public async Task<bool> VerifyBetaAsync(string key)
+    {
+        try
+        {
+            using var c = BetaHttp();
+            var r = await c.PostAsync("verify", new StringContent(System.Text.Json.JsonSerializer.Serialize(new { key }), System.Text.Encoding.UTF8, "application/json"));
+            if (!r.IsSuccessStatusCode) return false;
+            var d = System.Text.Json.JsonSerializer.Deserialize<BetaVerifyResult>(await r.Content.ReadAsStringAsync());
+            var ok = d?.Valid == true;
+            if (ok)
+            {
+                BetaKey = key;
+                BetaAccess = true;
+                SaveSettings();
+            }
+            return ok;
+        }
+        catch { return false; }
+    }
+
+    public void SaveBetaServer()
+    {
+        SaveSettings();
+        Status = "Beta 服务器已保存";
     }
 
     public async Task LoadAnnouncementsAsync()
@@ -873,18 +946,34 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
+    public static bool IsPreRelease(string tag) =>
+        tag.Contains("-beta") || tag.Contains("-rc") || tag.Contains("-alpha");
+
     public static bool IsNewer(string tag, string current)
     {
-        int[] Parse(string v) => v.TrimStart('v').Split('.').Select(x => int.TryParse(x, out var n) ? n : 0).ToArray();
-        var a = Parse(tag);
-        var b = Parse(current);
-        for (int i = 0; i < Math.Max(a.Length, b.Length); i++)
+        (int[] nums, int pre, int preN) Parse(string v)
         {
-            var x = i < a.Length ? a[i] : 0;
-            var y = i < b.Length ? b[i] : 0;
+            var core = v.TrimStart('v');
+            var parts = core.Split('-');
+            var nums = parts[0].Split('.').Select(x => int.TryParse(x, out var n) ? n : 0).ToArray();
+            var pre = 0; var preN = 0;
+            if (parts.Length > 1)
+            {
+                var seg = parts[1].Split('.');
+                pre = seg[0].StartsWith("alpha") ? 1 : seg[0].StartsWith("beta") ? 2 : seg[0].StartsWith("rc") ? 3 : 0;
+                preN = seg.Length > 1 && int.TryParse(seg[1], out var n) ? n : 0;
+            }
+            return (nums, pre, preN);
+        }
+        var a = Parse(tag); var b = Parse(current);
+        for (int i = 0; i < Math.Max(a.nums.Length, b.nums.Length); i++)
+        {
+            var x = i < a.nums.Length ? a.nums[i] : 0;
+            var y = i < b.nums.Length ? b.nums[i] : 0;
             if (x != y) return x > y;
         }
-        return false;
+        if (a.pre != b.pre) return a.pre > b.pre;
+        return a.preN > b.preN;
     }
 
     private static List<AnnouncementItem> BuiltinAnnouncements() => new()

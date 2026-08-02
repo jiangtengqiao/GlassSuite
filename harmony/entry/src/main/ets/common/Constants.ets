@@ -25,6 +25,7 @@ export class Constants {
   static profileJson: string = '';
   static ghOwner: string = 'jiangtengqiao';
   static ghRepo: string = 'GlassSuite';
+  static betaKey: string = '';
 
   static isLoggedIn(): boolean {
     return Constants.userId > 0;

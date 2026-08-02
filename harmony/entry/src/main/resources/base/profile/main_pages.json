@@ -5,6 +5,7 @@
     "pages/GitHubPage",
     "pages/UpdateCenterPage",
     "pages/AnnouncementPage",
+    "pages/BetaPage",
     "pages/LoginPage",
     "pages/HomePage",
     "pages/SearchPage",

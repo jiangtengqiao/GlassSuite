@@ -128,8 +128,24 @@ export class GitHubApi {
   }
 
   static isNewer(tag: string, current: string): boolean {
-    const a = tag.replace(/^v/, '').split('.').map((x: string) => parseInt(x) || 0);
-    const b = current.split('.').map((x: string) => parseInt(x) || 0);
+    const parse = (v: string): number[] => {
+      const core = v.replace(/^v/, '');
+      const parts = core.split('-');
+      const nums = parts[0].split('.').map((x: string) => parseInt(x) || 0);
+      let pre = 0;
+      let preN = 0;
+      if (parts.length > 1) {
+        const seg = parts[1].split('.');
+        if (seg[0].startsWith('alpha')) pre = 1;
+        else if (seg[0].startsWith('beta')) pre = 2;
+        else if (seg[0].startsWith('rc')) pre = 3;
+        preN = seg.length > 1 ? (parseInt(seg[1]) || 0) : 0;
+      }
+      nums.push(pre, preN);
+      return nums;
+    };
+    const a = parse(tag);
+    const b = parse(current);
     const n = Math.max(a.length, b.length);
     for (let i = 0; i < n; i++) {
       const x = i < a.length ? a[i] : 0;

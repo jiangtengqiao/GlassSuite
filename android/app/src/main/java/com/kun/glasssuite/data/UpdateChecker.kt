@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
  */
 object UpdateChecker {
 
-    const val VERSION_NAME = "1.1.0"
+    const val VERSION_NAME = "1.1.0-beta.1"
     const val CHECK_INTERVAL_MS = 30 * 60 * 1000L
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
@@ -66,7 +66,7 @@ object UpdateChecker {
         }
     }
 
-    /** 手动检查（返回是否有更新） */
+    /** 手动检查（返回是否有更新）。有尝鲜权限推 Beta；否则仅正式版可被监测推送 */
     suspend fun checkNow(): Boolean {
         _checking.value = true
         try {
@@ -75,7 +75,9 @@ object UpdateChecker {
             if (release != null) {
                 val prev = _latest.value
                 _latest.value = release
-                val newer = isNewer(release.tagName, VERSION_NAME)
+                // 渠道过滤：无尝鲜权限时跳过 Beta/RC 版本
+                val betaOk = BetaStore.betaAccess || !isPreRelease(release.tagName)
+                val newer = betaOk && isNewer(release.tagName, VERSION_NAME)
                 _hasUpdate.value = newer
                 if (newer && prev?.tagName != release.tagName) {
                     _events.tryEmit(UpdateEvent.NewVersion(release))
@@ -105,15 +107,37 @@ object UpdateChecker {
         _newAnnouncements.value = 0
     }
 
+    /** 是否为预发布版本（beta/rc 后缀） */
+    fun isPreRelease(tag: String): Boolean = tag.contains("-beta") || tag.contains("-rc") || tag.contains("-alpha")
+
+    /** 版本比较：x.y.z(-beta.n)，正式 > 同号 beta；支持逐位比较 */
     fun isNewer(tag: String, current: String): Boolean {
-        val a = tag.removePrefix("v").split(".").mapNotNull { it.toIntOrNull() }
-        val b = current.split(".").mapNotNull { it.toIntOrNull() }
-        for (i in 0 until maxOf(a.size, b.size)) {
-            val x = a.getOrElse(i) { 0 }
-            val y = b.getOrElse(i) { 0 }
+        data class Ver(val nums: List<Int>, val pre: Int, val preN: Int)
+        fun parse(v: String): Ver {
+            val core = v.removePrefix("v")
+            val parts = core.split("-")
+            val nums = parts[0].split(".").mapNotNull { it.toIntOrNull() }
+            var pre = 0; var preN = 0
+            if (parts.size > 1) {
+                val seg = parts[1].split(".")
+                pre = when {
+                    seg[0].startsWith("alpha") -> 1
+                    seg[0].startsWith("beta") -> 2
+                    seg[0].startsWith("rc") -> 3
+                    else -> 0
+                }
+                preN = seg.getOrNull(1)?.toIntOrNull() ?: 0
+            }
+            return Ver(nums, pre, preN)
+        }
+        val a = parse(tag); val b = parse(current)
+        val n = maxOf(a.nums.size, b.nums.size)
+        for (i in 0 until n) {
+            val x = a.nums.getOrElse(i) { 0 }; val y = b.nums.getOrElse(i) { 0 }
             if (x != y) return x > y
         }
-        return false
+        if (a.pre != b.pre) return a.pre > b.pre      // 正式(0) > rc(3) > beta(2) > alpha(1)
+        return a.preN > b.preN
     }
 
     /** 内置默认公告（在线公告不可用时兜底） */

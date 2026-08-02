@@ -41,6 +41,7 @@ import com.kun.glasssuite.data.Settings
 import com.kun.glasssuite.data.UpdateChecker
 import com.kun.glasssuite.player.PlayerManager
 import com.kun.glasssuite.ui.announcement.AnnouncementScreen
+import com.kun.glasssuite.ui.beta.BetaScreen
 import com.kun.glasssuite.ui.detail.AlbumScreen
 import com.kun.glasssuite.ui.detail.ArtistScreen
 import com.kun.glasssuite.ui.detail.MvScreen
@@ -173,6 +174,10 @@ class MainActivity : ComponentActivity() {
 
                     composable("announcements") {
                         AnnouncementScreen(onBack = { nav.popBackStack() })
+                    }
+
+                    composable("beta") {
+                        BetaScreen(onBack = { nav.popBackStack() })
                     }
 
                     composable("player") {

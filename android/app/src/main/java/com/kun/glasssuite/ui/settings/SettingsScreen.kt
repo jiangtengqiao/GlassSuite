@@ -51,6 +51,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kun.glasssuite.App
+import com.kun.glasssuite.data.BetaStore
 import com.kun.glasssuite.data.Api
 import com.kun.glasssuite.data.AppConfig
 import com.kun.glasssuite.data.Settings
@@ -71,7 +72,7 @@ private val LEGAL_DOCS = listOf(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(onBack: () -> Unit) {
+fun SettingsScreen(onBack: () -> Unit, onOpenBeta: () -> Unit = {}) {
     val context = LocalContext.current
     val app = context.applicationContext as App
     val scope = rememberCoroutineScope()
@@ -82,6 +83,7 @@ fun SettingsScreen(onBack: () -> Unit) {
     var openDoc by remember { mutableStateOf<String?>(null) }
     var ghOwner by remember { mutableStateOf(AppConfig.ghOwner) }
     var ghRepo by remember { mutableStateOf(AppConfig.ghRepo) }
+    var betaUrl by remember { mutableStateOf(com.kun.glasssuite.data.BetaStore.betaServerUrl) }
 
     Scaffold(
         topBar = {
@@ -174,6 +176,41 @@ fun SettingsScreen(onBack: () -> Unit) {
                     )
                 }
             }
+
+            // 开发者尝鲜
+            SectionTitle("开发者尝鲜")
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(8.dp))
+                    .clickable { onOpenBeta() }
+                    .padding(vertical = 12.dp, horizontal = 8.dp)
+            ) {
+                Column(Modifier.weight(1f)) {
+                    Text("开发者尝鲜模式", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
+                    Text(
+                        if (BetaStore.betaAccess) "已激活（可接收 Beta 版推送）" else "申请/激活尝鲜码，体验 Beta 版本",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                Text("›", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            OutlinedTextField(
+                value = betaUrl,
+                onValueChange = { betaUrl = it },
+                label = { Text("Beta 服务器地址") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            OutlinedButton(
+                onClick = {
+                    BetaStore.betaServerUrl = betaUrl.trim()
+                    scope.launch { app.settings.setBetaServer(betaUrl.trim()) }
+                    savedMsg = "Beta 服务器已保存"
+                },
+                modifier = Modifier.fillMaxWidth(),
+            ) { Text("保存 Beta 服务器") }
 
             // GitHub 仓库（更新/公告/GitHub 模块数据源）
             SectionTitle("GitHub")

@@ -1,6 +1,7 @@
 package com.kun.glasssuite.ui.glass
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -17,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -52,13 +54,24 @@ fun GlassHomeScreen(
                 title = "璃光",
                 subtitle = "GlassSuite · 多功能应用套件",
                 trailing = {
-                    Text(
-                        "v${UpdateChecker.VERSION_NAME}",
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = if (dark) Color.White.copy(alpha = 0.5f) else Color(0xFF888888),
-                        modifier = Modifier.padding(top = 8.dp),
-                    )
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            "v${UpdateChecker.VERSION_NAME}",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = if (dark) Color.White.copy(alpha = 0.5f) else Color(0xFF888888),
+                            modifier = Modifier.padding(top = 8.dp),
+                        )
+                        Text(
+                            "BETA 尝鲜版",
+                            fontSize = 9.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White,
+                            modifier = Modifier
+                                .padding(horizontal = 6.dp, vertical = 1.dp)
+                                .background(Color(0xFFE8890C)),
+                        )
+                    }
                 },
             )
 

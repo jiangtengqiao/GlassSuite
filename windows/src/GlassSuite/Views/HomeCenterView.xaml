@@ -8,8 +8,11 @@
                 <TextBlock Text="璃光" FontSize="30" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" />
                 <TextBlock Text="  GlassSuite" FontSize="22" Foreground="{StaticResource SubTextBrush}"
                            VerticalAlignment="Bottom" Margin="8,0,0,3" />
-                <TextBlock Text="v1.1.0" FontSize="12" Foreground="{StaticResource SubTextBrush}"
+                <TextBlock Text="v1.1.0-beta.1" FontSize="12" Foreground="{StaticResource SubTextBrush}"
                            VerticalAlignment="Bottom" Margin="12,0,0,5" />
+                <Border Background="#E8890C" CornerRadius="6" Padding="6,1" Margin="8,0,0,4" VerticalAlignment="Bottom">
+                    <TextBlock Text="BETA 尝鲜版" FontSize="10" Foreground="White" />
+                </Border>
             </StackPanel>
             <TextBlock Text="多功能应用套件 · 音乐 / GitHub 检索 / 更新中心 / 公告推送"
                        FontSize="13" Foreground="{StaticResource SubTextBrush}" Margin="0,4,0,24" />

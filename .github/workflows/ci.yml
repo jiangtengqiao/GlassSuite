@@ -44,7 +44,7 @@ jobs:
         with:
           dotnet-version: '10.0.x'
       - name: 构建
-        run: dotnet build windows/src/GlassSuite/CloudMusic.csproj -c Release
+        run: dotnet build windows/src/GlassSuite/GlassSuite.csproj -c Release
       - uses: actions/upload-artifact@v4
         with:
           name: windows-build

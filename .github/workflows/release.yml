@@ -44,13 +44,13 @@ jobs:
           dotnet-version: '10.0.x'
       - name: 发布（win-x64，框架依赖）
         run: |
-          dotnet publish windows/src/GlassSuite/CloudMusic.csproj -c Release -r win-x64 --self-contained false -o publish/CloudMusic-win-x64
+          dotnet publish windows/src/GlassSuite/GlassSuite.csproj -c Release -r win-x64 --self-contained false -o publish/GlassSuite-win-x64
       - name: 打包 ZIP
-        run: Compress-Archive -Path publish/CloudMusic-win-x64 -DestinationPath publish/CloudMusic-win-x64.zip
+        run: Compress-Archive -Path publish/GlassSuite-win-x64 -DestinationPath publish/GlassSuite-win-x64.zip
       - uses: actions/upload-artifact@v4
         with:
           name: windows-package
-          path: publish/CloudMusic-win-x64.zip
+          path: publish/GlassSuite-win-x64.zip
           if-no-files-found: error
 
   harmony:
@@ -87,9 +87,11 @@ jobs:
           files: assets/*
           generate_release_notes: true
           draft: false
-          prerelease: false
+          # 版本策略：未成型版本一律 beta 标记（tag 含 beta/rc/alpha → 预发布）
+          # 仅正式版本（如 v1.1.0）使用正式 Release 标签
+          prerelease: ${{ contains(github.ref_name, 'beta') || contains(github.ref_name, 'rc') || contains(github.ref_name, 'alpha') }}
           body: |
-            ## 乐云音乐 CloudMusic 发布说明
+            ## 璃光 GlassSuite 发布说明
 
             - **Android**：`*.apk`（Release 未签名包，安装前请允许「未知来源」；正式分发请配置签名）
             - **Windows**：`CloudMusic-win-x64.zip`（win-x64，需安装 [.NET 10 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/10.0)）

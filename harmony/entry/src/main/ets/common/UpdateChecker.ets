@@ -13,7 +13,7 @@ export class UpdateChecker {
     return UpdateChecker.instance;
   }
 
-  static VERSION: string = '1.1.0';
+  static VERSION: string = '1.1.0-beta.1';
   static INTERVAL_MS: number = 30 * 60 * 1000;
 
   latest: GitHubRelease | undefined = undefined;
@@ -51,7 +51,9 @@ export class UpdateChecker {
       if (release !== undefined) {
         const prev = this.latest === undefined ? '' : this.latest.tagName;
         this.latest = release;
-        this.hasUpdate = GitHubApi.isNewer(release.tagName, UpdateChecker.VERSION);
+        // 渠道过滤：无尝鲜权限仅正式版可被监测推送
+        const betaOk = BetaStore.betaAccess || !UpdateChecker.isPreRelease(release.tagName);
+        this.hasUpdate = betaOk && GitHubApi.isNewer(release.tagName, UpdateChecker.VERSION);
         if (this.hasUpdate && prev !== release.tagName) {
           // 新版本事件：由页面监听 hasUpdate 弹窗
           this.emit();

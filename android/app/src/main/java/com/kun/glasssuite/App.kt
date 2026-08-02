@@ -27,6 +27,9 @@ class App : Application() {
             AppConfig.themeMode = s.themeMode
             AppConfig.ghOwner = s.ghOwner
             AppConfig.ghRepo = s.ghRepo
+            com.kun.glasssuite.data.BetaStore.betaServerUrl = s.betaServerUrl
+            com.kun.glasssuite.data.BetaStore.betaKey = s.betaKey
+            com.kun.glasssuite.data.BetaStore.betaAccess = s.betaKey.isNotBlank()
             AppConfig.lyricFontSize = s.lyricFontSize
             AppConfig.lyricOffsetMs = s.lyricOffsetMs
             AppConfig.lyricMode = s.lyricMode

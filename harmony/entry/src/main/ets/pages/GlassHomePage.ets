@@ -99,7 +99,12 @@ struct GlassHomePage {
           }
           .alignItems(HorizontalAlign.Start)
           Blank()
-          Text(`v${UpdateChecker.VERSION}`).fontSize(11).fontColor('#888888').margin({ top: 10 })
+          Column() {
+            Text(`v${UpdateChecker.VERSION}`).fontSize(11).fontColor('#888888')
+            Text('BETA 尝鲜版').fontSize(9).fontWeight(FontWeight.Bold).fontColor('#FFFFFF')
+              .backgroundColor('#E8890C').borderRadius(6)
+              .padding({ left: 6, right: 6, top: 1, bottom: 1 }).margin({ top: 2 })
+          }.margin({ top: 6 })
         }
         .width('100%')
         .padding({ left: 20, right: 20, top: 20, bottom: 8 })

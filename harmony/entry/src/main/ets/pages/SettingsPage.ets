@@ -1,6 +1,7 @@
 import { router, promptAction } from '@kit.ArkUI';
 import { Constants } from '../common/Constants';
 import { Net } from '../common/Net';
+import { BetaStore } from '../common/BetaStore';
 import { Utils } from '../common/Utils';
 
 interface LegalDoc {
@@ -21,6 +22,7 @@ struct SettingsPage {
   @State themeMode: number = 0;
   @State ghOwner: string = Constants.ghOwner;
   @State ghRepo: string = Constants.ghRepo;
+  @State betaUrl: string = BetaStore.betaServerUrl;
   @State savedMsg: string = '';
   @State showDoc: boolean = false;
   @State docTitle: string = '';
@@ -174,6 +176,29 @@ struct SettingsPage {
                   Net.put('theme_mode', idx);
                 })
             }, (name: string, idx: number) => `${name}-${idx}`)
+          }
+
+          // 开发者尝鲜
+          Text('开发者尝鲜').fontSize(14).fontWeight(FontWeight.Bold).fontColor('#C62F2F').margin({ top: 8 })
+          Button('开发者尝鲜模式（申请/激活尝鲜码）')
+            .backgroundColor('#C62F2F')
+            .width('100%')
+            .onClick(() => {
+              router.pushUrl({ url: 'pages/BetaPage' });
+            })
+          Row({ space: 8 }) {
+            TextInput({ text: this.betaUrl, placeholder: 'Beta 服务器地址' })
+              .layoutWeight(1)
+              .height(40)
+              .borderRadius(8)
+              .onChange((v: string) => {
+                this.betaUrl = v;
+              })
+            Button('保存').backgroundColor('#C62F2F').onClick(() => {
+              BetaStore.betaServerUrl = this.betaUrl.trim();
+              Net.put('beta_url', this.betaUrl.trim());
+              promptAction.showToast({ message: 'Beta 服务器已保存' });
+            })
           }
 
           // GitHub 仓库（更新/公告数据源）

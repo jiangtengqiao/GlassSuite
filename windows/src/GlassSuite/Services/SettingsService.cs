@@ -13,6 +13,8 @@ public class AppSettings
     public int LyricMode { get; set; }
     public string DiyLyric { get; set; } = "";
     public string Quality { get; set; } = "exhigh";
+    public string BetaServerUrl { get; set; } = "http://localhost:3100";
+    public string BetaKey { get; set; } = "";
     public long UserId { get; set; }
     public string ProfileJson { get; set; } = "";
     public string Cookie { get; set; } = "";
