@@ -1,0 +1,16 @@
+{
+  "src": [
+    "pages/IndexPage",
+    "pages/LoginPage",
+    "pages/HomePage",
+    "pages/SearchPage",
+    "pages/PlaylistPage",
+    "pages/PlayerPage",
+    "pages/SongDetailPage",
+    "pages/ArtistPage",
+    "pages/AlbumPage",
+    "pages/MvPage",
+    "pages/LikedPage",
+    "pages/SettingsPage"
+  ]
+}

@@ -1,0 +1,42 @@
+# ===== Android =====
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/.idea/
+android/captures/
+android/.kotlin/
+*.apk
+*.aab
+
+# ===== HarmonyOS =====
+harmony/.hvigor/
+harmony/.idea/
+harmony/build/
+harmony/entry/build/
+harmony/oh_modules/
+harmony/entry/oh_modules/
+harmony/local.properties
+harmony/.preview/
+harmony/AppScope/.preview/
+harmony/**/.preview/
+*.hap
+
+# ===== Windows =====
+windows/src/CloudMusic/bin/
+windows/src/CloudMusic/obj/
+windows/publish/
+*.user
+*.suo
+.vs/
+
+# ===== Server =====
+server/NeteaseCloudMusicApi/
+node_modules/
+npm-debug.log*
+
+# ===== 通用 =====
+.kunsdd/
+*.log
+.DS_Store
+Thumbs.db
