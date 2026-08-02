@@ -45,3 +45,4 @@ Thumbs.db
 .agents/
 server/beta-server/data/
 server/beta-server/node_modules/
+release/
