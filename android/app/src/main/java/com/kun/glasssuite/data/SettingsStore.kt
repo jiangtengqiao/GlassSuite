@@ -17,7 +17,7 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(na
 data class Settings(
     val apiBaseUrl: String = AppConfig.DEFAULT_API,
     val directMode: Boolean = true,
-    val accentHex: String = "#C62F2F",
+    val accentHex: String = "#4D7CFE",
     val darkMode: Boolean = false,
     val themeMode: Int = 0,
     val ghOwner: String = "jiangtengqiao",
@@ -60,7 +60,7 @@ class SettingsStore(private val context: Context) {
         Settings(
             apiBaseUrl = p[Keys.API_BASE] ?: AppConfig.DEFAULT_API,
             directMode = p[Keys.DIRECT_MODE] ?: true,
-            accentHex = p[Keys.ACCENT] ?: "#C62F2F",
+            accentHex = p[Keys.ACCENT] ?: "#4D7CFE",
             darkMode = p[Keys.DARK] ?: false,
             themeMode = p[Keys.THEME_MODE] ?: 0,
             ghOwner = p[Keys.GH_OWNER] ?: "jiangtengqiao",

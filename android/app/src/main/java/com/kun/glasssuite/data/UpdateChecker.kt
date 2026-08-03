@@ -167,8 +167,8 @@ object UpdateChecker {
     fun builtinAnnouncements(): List<Announcement> = listOf(
         Announcement(
             id = "builtin-welcome",
-            title = "欢迎使用璃光 GlassSuite",
-            content = "GlassSuite 多功能应用套件正式开放 Beta 尝鲜：液态玻璃 UI、GitHub 检索、更新中心、公告推送与音乐模块。\n当前版本：$VERSION_NAME",
+            title = "欢迎使用Aura",
+            content = "Aura 多功能应用套件正式开放 Beta 尝鲜：液态玻璃 UI、GitHub 检索、更新中心、公告推送与音乐模块。\n当前版本：$VERSION_NAME",
             isPromo = false,
             date = "2026-08-02",
         ),

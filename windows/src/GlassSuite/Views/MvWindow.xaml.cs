@@ -34,7 +34,7 @@ public partial class MvWindow : Window
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("MV 播放失败：" + ex.Message, "璃光");
+                    MessageBox.Show("MV 播放失败：" + ex.Message, "Aura");
                 }
             }
             else

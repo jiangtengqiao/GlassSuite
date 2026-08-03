@@ -10,26 +10,26 @@ import androidx.compose.ui.graphics.Color
 
 /** 预设主题色板 */
 val AccentPresets = listOf(
-    "网易红" to 0xFFEC4141,
-    "绯红" to 0xFFC62F2F,
+    "玻璃蓝" to 0xFF4D7CFE,
+    "极光紫" to 0xFF7B5CFF,
     "薄荷绿" to 0xFF00B578,
     "海盐蓝" to 0xFF3D7FFF,
-    "暗夜紫" to 0xFF7B5CFF,
     "琥珀橙" to 0xFFFF8000,
+    "樱粉" to 0xFFFF6B9D,
 )
 
 private val LightColors = lightColorScheme(
-    primary = Color(0xFFC62F2F),
+    primary = Color(0xFF4D7CFE),
     onPrimary = Color.White,
-    secondary = Color(0xFFC62F2F),
+    secondary = Color(0xFF4D7CFE),
     surface = Color(0xFFFDFDFD),
     background = Color(0xFFF7F7F9),
 )
 
 private val DarkColors = darkColorScheme(
-    primary = Color(0xFFEC4141),
+    primary = Color(0xFF4D7CFE),
     onPrimary = Color.White,
-    secondary = Color(0xFFEC4141),
+    secondary = Color(0xFF4D7CFE),
     surface = Color(0xFF17171A),
     background = Color(0xFF101014),
 )
@@ -43,7 +43,7 @@ fun AppTheme(
     val useDark = dark ?: isSystemInDarkTheme()
     val accent = remember(accentHex) {
         runCatching { Color(android.graphics.Color.parseColor(accentHex)) }
-            .getOrDefault(Color(0xFFC62F2F))
+            .getOrDefault(Color(0xFF4D7CFE))
     }
     val base = if (useDark) DarkColors else LightColors
     val colors = base.copy(primary = accent, secondary = accent, tertiary = accent)

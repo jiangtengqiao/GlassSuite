@@ -2,14 +2,14 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:ctl="clr-namespace:GlassSuite.Controls"
-        Title="璃光 GlassSuite" Height="760" Width="1180"
+        Title="Aura" Height="760" Width="1180"
         WindowStartupLocation="CenterScreen"
         Background="#F7F7F9">
     <DockPanel>
         <!-- 左导航 -->
         <Border x:Name="NavPanel" DockPanel.Dock="Left" Width="92" Background="#2B2B30">
             <StackPanel>
-                <TextBlock Text="璃光" FontSize="22" FontWeight="Bold" Foreground="#EC4141"
+                <TextBlock Text="Aura" FontSize="22" FontWeight="Bold" Foreground="#4D7CFE"
                            HorizontalAlignment="Center" Margin="0,20,0,24" />
                 <Button x:Name="NavCenterBtn" Style="{StaticResource NavButton}" Foreground="White" Content="首页"
                         Click="NavCenter_Click" />

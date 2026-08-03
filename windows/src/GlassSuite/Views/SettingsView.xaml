@@ -4,26 +4,6 @@
              Background="White">
     <ScrollViewer>
         <StackPanel Margin="20">
-            <TextBlock Text="连接方式" FontSize="16" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" />
-            <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                <Button x:Name="DirectBtn" Content="自动直连网易云（推荐）" Click="DirectMode_Click" Tag="true" Margin="0,0,8,0" />
-                <Button x:Name="ServerBtn" Content="自托管服务器" Click="DirectMode_Click" Tag="false" />
-            </StackPanel>
-            <TextBlock x:Name="ModeHint" FontSize="12" Foreground="#888888" Margin="0,6,0,0" TextWrapping="Wrap" />
-
-            <TextBlock Text="服务器" FontSize="16" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" Margin="0,22,0,0" />
-            <StackPanel x:Name="ServerPanel">
-                <Grid Margin="0,8,0,0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    <TextBox x:Name="ApiBox" Height="32" FontSize="13" />
-                    <Button Grid.Column="1" Content="保存并应用" Margin="10,0,0,0" Click="SaveApi_Click" />
-                </Grid>
-                <TextBlock Text="{Binding Status}" FontSize="12" Foreground="{StaticResource AccentBrush}" Margin="0,6,0,0" />
-            </StackPanel>
-
             <TextBlock Text="主题定制" FontSize="16" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" Margin="0,22,0,0" />
             <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
                 <Button Tag="#EC4141" Click="Accent_Click" Width="34" Height="34" Background="#EC4141" Margin="0,0,10,0" ToolTip="网易红" />
@@ -97,7 +77,7 @@
                 <Button Tag="09-用户行为规范.txt" Click="LegalDoc_Click" Content="用户行为规范" HorizontalAlignment="Left" />
             </StackPanel>
 
-            <TextBlock Text="璃光 GlassSuite v1.1.0 · 仅供学习交流使用"
+            <TextBlock Text="Aura v1.1.0 · 仅供学习交流使用"
                        FontSize="12" Foreground="{StaticResource SubTextBrush}" Margin="0,24,0,12" />
         </StackPanel>
     </ScrollViewer>

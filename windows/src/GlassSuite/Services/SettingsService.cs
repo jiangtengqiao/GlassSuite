@@ -7,7 +7,7 @@ public class AppSettings
 {
     public string ApiBaseUrl { get; set; } = "http://localhost:3000";
     public bool DirectMode { get; set; } = true;
-    public string AccentHex { get; set; } = "#C62F2F";
+    public string AccentHex { get; set; } = "#4D7CFE";
     public bool DarkMode { get; set; }
     public int LyricFontSize { get; set; } = 18;
     public int LyricOffsetMs { get; set; }

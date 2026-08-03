@@ -78,27 +78,12 @@ fun SettingsScreen(onBack: () -> Unit, onOpenBeta: () -> Unit = {}) {
     val app = context.applicationContext as App
     val scope = rememberCoroutineScope()
     val settings by app.settings.data.collectAsState(initial = Settings())
-    var apiUrl by remember { mutableStateOf(AppConfig.apiBaseUrl) }
     var betaUrl by remember { mutableStateOf(BetaStore.betaServerUrl) }
-    var connState by remember { mutableStateOf("") }
     var savedMsg by remember { mutableStateOf<String?>(null) }
     var openDoc by remember { mutableStateOf<String?>(null) }
     var errLog by remember { mutableStateOf("") }
     var errMsg by remember { mutableStateOf<String?>(null) }
 
-    // 自动探测默认服务器地址（模拟器/真机）
-    LaunchedEffect(Unit) {
-        if (AppConfig.apiBaseUrl == AppConfig.DEFAULT_API) {
-            val emu = "http://10.0.2.2:3000"
-            val local = "http://127.0.0.1:3000"
-            apiUrl = runCatching {
-                val c = java.net.Socket()
-                c.connect(java.net.InetSocketAddress("10.0.2.2", 3000), 800)
-                c.close()
-                emu
-            }.getOrElse { local }
-        }
-    }
 
     Scaffold(
         topBar = {
@@ -148,82 +133,6 @@ fun SettingsScreen(onBack: () -> Unit, onOpenBeta: () -> Unit = {}) {
                             }
                     )
                 }
-            }
-
-            // ===== 连接方式 =====
-            SectionTitle("连接方式")
-            var directNow by remember { mutableStateOf(AppConfig.directMode) }
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                FilterChip(
-                    selected = directNow,
-                    onClick = {
-                        directNow = true
-                        AppConfig.directMode = true
-                        scope.launch { app.settings.setDirectMode(true) }
-                    },
-                    label = { Text("自动直连网易云（推荐）") },
-                )
-                FilterChip(
-                    selected = !directNow,
-                    onClick = {
-                        directNow = false
-                        AppConfig.directMode = false
-                        scope.launch { app.settings.setDirectMode(false) }
-                    },
-                    label = { Text("自托管服务器") },
-                )
-            }
-            Text(
-                if (directNow) {
-                    "无需部署任何服务器：App 内置网易云官方接口加密协议（weapi/eapi），直接连接 music.163.com，" +
-                        "扫码/验证码登录、歌单、歌词、播放、MV 全部可用，开箱即听。"
-                } else {
-                    "使用自建的 NeteaseCloudMusicApi 服务（仓库 server/ 目录），适合需要固定出口 IP 与自定义部署的场景。"
-                },
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Spacer(Modifier.height(10.dp))
-
-            // ===== 服务器连接（仅自托管模式） =====
-            if (!directNow) {
-            SectionTitle("服务器连接")
-            Text(
-                "音乐数据由你部署的服务器提供。部署方式见仓库 README；默认地址适用于模拟器。",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                OutlinedTextField(
-                    value = apiUrl,
-                    onValueChange = { apiUrl = it },
-                    label = { Text("服务器地址") },
-                    singleLine = true,
-                    modifier = Modifier.weight(1f),
-                )
-                Spacer(Modifier.width(10.dp))
-                Button(onClick = {
-                    val url = apiUrl.trim().trimEnd('/')
-                    AppConfig.apiBaseUrl = url
-                    Api.rebuild()
-                    scope.launch {
-                        app.settings.updateApiBase(url)
-                        savedMsg = "已保存，测试连接…"
-                        connState = runCatching {
-                            val resp = retrofit2.Retrofit.Builder()
-                                .baseUrl(if (url.endsWith("/")) url else "$url/")
-                                .build()
-                                .create(com.kun.glasssuite.data.ApiService::class.java)
-                                .toplist()
-                            if (resp.code == 200) "✅ 连接成功" else "⚠️ 服务器返回异常"
-                        }.getOrElse { "❌ 无法连接（请确认服务器已启动）" }
-                    }
-                }) { Text("测试并保存") }
-            }
-            if (connState.isNotEmpty()) {
-                Text(connState, color = if (connState.startsWith("✅")) Color(0xFF00B578) else Color(0xFFE84026))
-            }
-            savedMsg?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary) }
             }
 
             // ===== 开发者尝鲜 =====

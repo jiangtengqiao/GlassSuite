@@ -132,10 +132,10 @@ public partial class MainViewModel : ObservableObject
 
     [ObservableProperty] private string _status = "";
     [ObservableProperty] private string _apiUrl = "";
-    [ObservableProperty] private string _accentHex = "#C62F2F";
+    [ObservableProperty] private string _accentHex = "#4D7CFE";
     [ObservableProperty] private bool _darkMode;
     [ObservableProperty] private bool _lyricPanelVisible;
-    [ObservableProperty] private string _windowTitle = "璃光 GlassSuite";
+    [ObservableProperty] private string _windowTitle = "Aura";
     [ObservableProperty] private int _searchTab;
 
     // ===== 多功能模块：GitHub / 更新 / 公告 =====
@@ -167,7 +167,7 @@ public partial class MainViewModel : ObservableObject
     private bool _qrBusy;
     private readonly Dictionary<long, string> _transMap = new();
 
-    public static readonly string[] AccentPresets = { "#EC4141", "#C62F2F", "#00B578", "#3D7FFF", "#7B5CFF", "#FF8000" };
+    public static readonly string[] AccentPresets = { "#EC4141", "#4D7CFE", "#00B578", "#3D7FFF", "#7B5CFF", "#FF8000" };
     public static readonly string[] AccentNames = { "网易红", "绯红", "薄荷绿", "海盐蓝", "暗夜紫", "琥珀橙" };
 
     // ==================== 初始化 / 设置 ====================
@@ -1030,7 +1030,7 @@ public partial class MainViewModel : ObservableObject
     {
         new AnnouncementItem
         {
-            Id = "welcome", Title = "欢迎使用璃光 GlassSuite",
+            Id = "welcome", Title = "欢迎使用Aura",
             Content = "多功能应用套件：音乐、GitHub 检索、更新中心与公告推送。",
             Date = "2026-08-02",
         },

@@ -1,4 +1,4 @@
-# 璃光 GlassSuite — 多功能应用套件
+# Aura — 多功能应用套件
 
 ![平台](https://img.shields.io/badge/平台-Android%20%7C%20Windows-blue)
 ![版本](https://img.shields.io/badge/版本-v1.0.0-red)

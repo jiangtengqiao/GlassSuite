@@ -200,7 +200,7 @@ public partial class MainWindow : Window
     {
         if (_vm.Queue.Count == 0)
         {
-            MessageBox.Show("播放队列为空", "璃光", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show("播放队列为空", "Aura", MessageBoxButton.OK, MessageBoxImage.Information);
             return;
         }
         var items = _vm.Queue.Select((s, i) => $"{(i == _vm.QueueIndex ? "▶ " : "  ")}{i + 1}. {s.Name} - {s.ArtistNames}");

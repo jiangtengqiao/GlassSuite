@@ -10,7 +10,7 @@ object AppConfig {
     var apiBaseUrl: String = DEFAULT_API
     /** true=直连网易云官方接口（默认，无需部署服务器）；false=自托管 NeteaseCloudMusicApi */
     var directMode: Boolean = true
-    var accentHex: String = "#C62F2F"
+    var accentHex: String = "#4D7CFE"
     var darkMode: Boolean = false
     var themeMode: Int = 0          // 0 跟随系统 1 浅色 2 深色
     var lyricFontSize: Int = 18

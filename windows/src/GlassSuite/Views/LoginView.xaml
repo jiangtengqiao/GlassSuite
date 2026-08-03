@@ -9,7 +9,7 @@
         </Grid.ColumnDefinitions>
 
         <StackPanel Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center">
-            <TextBlock Text="璃光" FontSize="34" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" />
+            <TextBlock Text="Aura" FontSize="34" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" />
             <TextBlock Text="GlassSuite · 登录网易云账号" FontSize="14" Foreground="{StaticResource SubTextBrush}" Margin="0,8,0,24" />
             <TabControl x:Name="LoginTabs" Width="340" SelectedIndex="0">
                 <TabItem Header="扫码登录">

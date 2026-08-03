@@ -15,33 +15,8 @@ public partial class SettingsView : UserControl
         InitializeComponent();
         _vm = vm;
         DataContext = vm;
-        ApiBox.Text = _vm.ApiUrl;
         DiyBox.Text = _vm.DiyLyric;
         BetaUrlBox.Text = _vm.BetaServerUrl;
-        UpdateModeUi(_vm.DirectMode);
-    }
-
-    private void UpdateModeUi(bool direct)
-    {
-        ServerPanel.Visibility = direct ? Visibility.Collapsed : Visibility.Visible;
-        DirectBtn.FontWeight = direct ? FontWeights.Bold : FontWeights.Normal;
-        ServerBtn.FontWeight = direct ? FontWeights.Normal : FontWeights.Bold;
-        ModeHint.Text = direct
-            ? "无需部署服务器：内置网易云官方接口加密协议（weapi/eapi），直连 music.163.com，扫码/验证码登录、歌单、歌词、播放全部可用。"
-            : "使用自建的 NeteaseCloudMusicApi 服务（仓库 server/ 目录），适合固定出口 IP 或自定义部署场景。";
-    }
-
-    private void DirectMode_Click(object sender, RoutedEventArgs e)
-    {
-        var direct = (sender as FrameworkElement)?.Tag is bool b && b;
-        _vm.SetDirectMode(direct);
-        UpdateModeUi(direct);
-    }
-
-    private void SaveApi_Click(object sender, RoutedEventArgs e)
-    {
-        _vm.ApiUrl = ApiBox.Text.Trim();
-        _vm.SaveApiUrl();
     }
 
     private void Accent_Click(object sender, RoutedEventArgs e)
@@ -145,7 +120,7 @@ public partial class SettingsView : UserControl
             var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "legal", file);
             if (!File.Exists(path))
             {
-                MessageBox.Show("文档文件缺失：" + file, "璃光");
+                MessageBox.Show("文档文件缺失：" + file, "Aura");
                 return;
             }
             var win = new Window
@@ -171,7 +146,7 @@ public partial class SettingsView : UserControl
         }
         catch (Exception ex)
         {
-            MessageBox.Show("打开文档失败：" + ex.Message, "璃光");
+            MessageBox.Show("打开文档失败：" + ex.Message, "Aura");
         }
     }
 }
