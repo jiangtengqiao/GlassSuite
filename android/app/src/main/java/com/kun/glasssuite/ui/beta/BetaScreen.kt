@@ -226,8 +226,11 @@ fun BetaScreen(onBack: () -> Unit) {
                 Button(onClick = {
                     scope.launch {
                         val ok = BetaStore.verify(activeKey.trim())
-                        activateMsg = if (ok) "✓ 激活成功，已开启 Beta 渠道推送" else "✗ 尝鲜码无效，请检查后重试"
-                        if (ok) app.settings.setBetaKey(BetaStore.betaKey)
+                        activateMsg = if (ok) "✓ 激活成功（层级 ${BetaStore.tierName}），已开启对应渠道推送" else "✗ 尝鲜码无效，请检查后重试"
+                        if (ok) {
+                            app.settings.setBetaKey(BetaStore.betaKey)
+                            app.settings.setBetaTier(BetaStore.betaTier)
+                        }
                     }
                 }) { Text("激活") }
             }

@@ -17,7 +17,6 @@
 |---|---|---|
 | Android | `GlassSuite-v1.1.0.apk` | [GitHub Releases](https://github.com/jiangtengqiao/GlassSuite/releases) |
 | Windows | `GlassSuite-win-x64.zip` | [GitHub Releases](https://github.com/jiangtengqiao/GlassSuite/releases) |
-| HarmonyOS | `harmony-source.tar.gz`（DevEco 构建 HAP） | [GitHub Releases](https://github.com/jiangtengqiao/GlassSuite/releases) |
 
 > 打 tag（`git tag vX.Y.Z && git push origin vX.Y.Z`）即自动构建发布新产物。
 > 网络受限时可使用镜像加速：`https://ghproxy.net/https://github.com/jiangtengqiao/GlassSuite/releases`
@@ -52,20 +51,23 @@
 在 [Releases](https://github.com/jiangtengqiao/GlassSuite/releases) 页获取各平台产物：
 - `*.apk` → Android 直接安装；
 - `CloudMusic-win-x64.zip` → 解压运行（需 .NET 10 Desktop Runtime）；
-- `harmony-source.tar.gz` → DevEco Studio 打开构建 HAP。
 
-### 从源码构建
+### 开箱即用（推荐）
 
-1. **部署 API 服务**（任选其一）：
-   - Docker：`cd server && docker compose up -d`
-   - 源码：`cd server && bash start.sh`（或 `.\start.ps1`）
-   - 服务默认监听 `http://0.0.0.0:3000`
-   - 亦可直接使用仓库 [NeteaseCloudMusicApi](https://github.com/jiangtengqiao/NeteaseCloudMusicApi)（已 fork 的开源接口服务）
-2. **运行客户端**，在「设置 → 服务器地址」中配置 API 地址：
-   - Android 模拟器：`http://10.0.2.2:3000`；真机：`http://<电脑局域网IP>:3000`
-   - HarmonyOS 模拟器/真机：`http://<电脑局域网IP>:3000`
-   - Windows：`http://localhost:3000`
-3. 构建与运行详见 [docs/03-构建指南.md](docs/03-构建指南.md)。
+安装后**默认「自动直连网易云」**：客户端内置网易云官方接口加密协议（weapi/eapi，与 YesPlayMusic 同方案），
+无需部署任何服务器，扫码/验证码登录、歌单、歌词、播放、MV 全部可用。设置页可随时切换：
+
+- **自动直连网易云（推荐）**：内置加密直连 `music.163.com`，零部署
+- **自托管服务器**：`cd server && docker compose up -d`（或 `bash start.sh`），
+  在「设置 → 服务器地址」配置（模拟器 `http://10.0.2.2:3000` / 真机局域网 IP / Windows `localhost:3000`）
+
+### 系统能力
+
+- **错误上报体系**：全局崩溃捕获 → 本地滚动日志（含设备/系统/版本信息）→ 自动上传（Beta 服务器 / 自托管服务器双通道）→ 失败保留重试；设置页可查看/手动上传/清空
+- **版本检测迭代**：启动即检 + 30 分钟轮询，失败自动退避（30m→1h→2h→4h→8h）；按发布通道过滤推送
+- **严格分层 Beta**：申请评分决定层级——L1 Beta 尝鲜 / L2 Alpha 内测 / L3 开发者核心；层级决定可见更新通道（stable/beta/alpha/dev），尝鲜码由 `server/beta-server` 签发验证
+
+构建与运行详见 [docs/03-构建指南.md](docs/03-构建指南.md)。
 
 ## 目录结构
 
@@ -73,7 +75,6 @@
 ├── docs/                  # 架构、部署、构建文档 + 法务文档（legal/）
 ├── server/                # API 服务（docker-compose / 启动脚本）
 ├── android/               # Android 端（Gradle + Compose）
-├── harmony/               # HarmonyOS 端（DevEco Studio Stage 工程）
 └── windows/               # Windows 端（WPF .NET 8）
 ```
 

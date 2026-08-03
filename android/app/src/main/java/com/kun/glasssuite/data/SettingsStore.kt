@@ -16,6 +16,7 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(na
 
 data class Settings(
     val apiBaseUrl: String = AppConfig.DEFAULT_API,
+    val directMode: Boolean = true,
     val accentHex: String = "#C62F2F",
     val darkMode: Boolean = false,
     val themeMode: Int = 0,
@@ -23,6 +24,7 @@ data class Settings(
     val ghRepo: String = "GlassSuite",
     val betaServerUrl: String = "http://10.0.2.2:3100",
     val betaKey: String = "",
+    val betaTier: Int = 0,
     val lyricFontSize: Int = 18,
     val lyricOffsetMs: Int = 0,
     val lyricMode: Int = 0,
@@ -36,6 +38,7 @@ class SettingsStore(private val context: Context) {
 
     private object Keys {
         val API_BASE = stringPreferencesKey("api_base")
+        val DIRECT_MODE = booleanPreferencesKey("direct_mode")
         val ACCENT = stringPreferencesKey("accent")
         val DARK = booleanPreferencesKey("dark")
         val THEME_MODE = intPreferencesKey("theme_mode")
@@ -43,6 +46,7 @@ class SettingsStore(private val context: Context) {
         val GH_REPO = stringPreferencesKey("gh_repo")
         val BETA_URL = stringPreferencesKey("beta_url")
         val BETA_KEY = stringPreferencesKey("beta_key")
+        val BETA_TIER = intPreferencesKey("beta_tier")
         val LYRIC_SIZE = intPreferencesKey("lyric_size")
         val LYRIC_OFFSET = intPreferencesKey("lyric_offset")
         val LYRIC_MODE = intPreferencesKey("lyric_mode")
@@ -55,6 +59,7 @@ class SettingsStore(private val context: Context) {
     val data: Flow<Settings> = context.dataStore.data.map { p ->
         Settings(
             apiBaseUrl = p[Keys.API_BASE] ?: AppConfig.DEFAULT_API,
+            directMode = p[Keys.DIRECT_MODE] ?: true,
             accentHex = p[Keys.ACCENT] ?: "#C62F2F",
             darkMode = p[Keys.DARK] ?: false,
             themeMode = p[Keys.THEME_MODE] ?: 0,
@@ -62,6 +67,7 @@ class SettingsStore(private val context: Context) {
             ghRepo = p[Keys.GH_REPO] ?: "GlassSuite",
             betaServerUrl = p[Keys.BETA_URL] ?: "http://10.0.2.2:3100",
             betaKey = p[Keys.BETA_KEY] ?: "",
+            betaTier = p[Keys.BETA_TIER] ?: 0,
             lyricFontSize = p[Keys.LYRIC_SIZE] ?: 18,
             lyricOffsetMs = p[Keys.LYRIC_OFFSET] ?: 0,
             lyricMode = p[Keys.LYRIC_MODE] ?: 0,
@@ -75,6 +81,8 @@ class SettingsStore(private val context: Context) {
     suspend fun updateApiBase(url: String) {
         context.dataStore.edit { it[Keys.API_BASE] = url.trim().trimEnd('/') }
     }
+
+    suspend fun setDirectMode(v: Boolean) = context.dataStore.edit { it[Keys.DIRECT_MODE] = v }
 
     suspend fun setAccent(hex: String) = context.dataStore.edit { it[Keys.ACCENT] = hex }
 
@@ -90,6 +98,8 @@ class SettingsStore(private val context: Context) {
     suspend fun setBetaServer(url: String) = context.dataStore.edit { it[Keys.BETA_URL] = url.trim() }
 
     suspend fun setBetaKey(key: String) = context.dataStore.edit { it[Keys.BETA_KEY] = key }
+
+    suspend fun setBetaTier(tier: Int) = context.dataStore.edit { it[Keys.BETA_TIER] = tier }
 
     suspend fun setLyricFontSize(v: Int) = context.dataStore.edit { it[Keys.LYRIC_SIZE] = v }
 

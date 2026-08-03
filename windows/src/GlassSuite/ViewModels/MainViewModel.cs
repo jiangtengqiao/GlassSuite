@@ -30,7 +30,12 @@ public partial class MainViewModel : ObservableObject
 
         _api.SetBaseUrl(_settings.ApiBaseUrl);
         _api.SetCookieString(_settings.Cookie);
+        _api.DirectMode = _settings.DirectMode;
         ApiUrl = _settings.ApiBaseUrl;
+        DirectMode = _settings.DirectMode;
+        // 错误上报通道注入
+        ErrorReporter.BetaServerUrl = _settings.BetaServerUrl;
+        ErrorReporter.ApiBaseUrl = _settings.ApiBaseUrl;
         AccentHex = _settings.AccentHex;
         DarkMode = _settings.DarkMode;
         Quality = _settings.Quality;
@@ -43,6 +48,7 @@ public partial class MainViewModel : ObservableObject
         BetaServerUrl = _settings.BetaServerUrl;
         BetaKey = _settings.BetaKey;
         BetaAccess = !string.IsNullOrEmpty(_settings.BetaKey);
+        BetaTier = _settings.BetaTier;
 
         if (UserId > 0)
         {
@@ -64,6 +70,7 @@ public partial class MainViewModel : ObservableObject
     // ==================== 属性 ====================
     [ObservableProperty] private Profile? _user;
     [ObservableProperty] private bool _isLoggedIn;
+    [ObservableProperty] private bool _directMode = true;
     [ObservableProperty] private long _userId;
     [ObservableProperty] private string _profileJson = "";
 
@@ -139,6 +146,15 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty] private string _betaServerUrl = "http://localhost:3100";
     [ObservableProperty] private string _betaKey = "";
     [ObservableProperty] private bool _betaAccess;
+    [ObservableProperty] private int _betaTier;
+
+    public string BetaTierName => BetaTier switch
+    {
+        3 => "开发者核心",
+        2 => "Alpha 内测",
+        1 => "Beta 尝鲜",
+        _ => "正式用户",
+    };
     [ObservableProperty] private string _gitHubQuery = "";
     [ObservableProperty] private string _gitHubStatus = "";
     [ObservableProperty] private List<ReleaseRow> _releaseRows = new();
@@ -176,6 +192,7 @@ public partial class MainViewModel : ObservableObject
     public void SaveSettings()
     {
         _settings.ApiBaseUrl = ApiUrl;
+        _settings.DirectMode = DirectMode;
         _settings.AccentHex = AccentHex;
         _settings.DarkMode = DarkMode;
         _settings.LyricFontSize = LyricFontSize;
@@ -187,6 +204,7 @@ public partial class MainViewModel : ObservableObject
         _settings.ProfileJson = ProfileJson;
         _settings.BetaServerUrl = BetaServerUrl;
         _settings.BetaKey = BetaKey;
+        _settings.BetaTier = BetaTier;
         _settings.Cookie = _api.GetCookieString();
         _settingsSvc.Save(_settings);
     }
@@ -199,6 +217,17 @@ public partial class MainViewModel : ObservableObject
         _api.SetBaseUrl(url);
         SaveSettings();
         Status = $"服务器地址已保存：{url}";
+    }
+
+    [RelayCommand]
+    public void SetDirectMode(bool direct)
+    {
+        DirectMode = direct;
+        _api.DirectMode = direct;
+        SaveSettings();
+        Status = direct
+            ? "已切换：自动直连网易云（weapi/eapi 加密直连官方接口）"
+            : "已切换：自托管服务器模式（请在下方配置服务器地址）";
     }
 
     [RelayCommand]
@@ -859,8 +888,8 @@ public partial class MainViewModel : ObservableObject
             var latest = list.FirstOrDefault();
             if (latest != null)
             {
-                var betaOk = BetaAccess || !IsPreRelease(latest.TagName);
-                HasUpdate = betaOk && IsNewer(latest.TagName, "1.1.0");
+                var channelOk = ChannelAllowed(latest.TagName);
+                HasUpdate = channelOk && IsNewer(latest.TagName, "1.1.0");
             }
         }
         catch
@@ -899,6 +928,7 @@ public partial class MainViewModel : ObservableObject
             {
                 BetaKey = d.Key;
                 BetaAccess = true;
+                BetaTier = d.Tier > 0 ? d.Tier : 1;
                 SaveSettings();
             }
             return d;
@@ -919,7 +949,13 @@ public partial class MainViewModel : ObservableObject
             {
                 BetaKey = key;
                 BetaAccess = true;
+                var tier = d?.Tier ?? 0;
+                BetaTier = tier > 0 ? tier : 1;
                 SaveSettings();
+            }
+            else if (d != null)
+            {
+                BetaTier = 0;
             }
             return ok;
         }
@@ -944,6 +980,20 @@ public partial class MainViewModel : ObservableObject
         {
             Announcements = BuiltinAnnouncements();
         }
+    }
+
+    /// <summary>严格通道过滤：tag 后缀决定通道，与用户层级匹配才放行</summary>
+    public bool ChannelAllowed(string tag)
+    {
+        var t = tag.ToLowerInvariant();
+        var channels = new List<string> { "stable" };
+        if (BetaTier >= 1) channels.Add("beta");
+        if (BetaTier >= 2) channels.Add("alpha");
+        if (BetaTier >= 3) channels.Add("dev");
+        if (t.Contains("-dev")) return channels.Contains("dev");
+        if (t.Contains("-alpha")) return channels.Contains("alpha");
+        if (t.Contains("-beta") || t.Contains("-rc")) return channels.Contains("beta");
+        return channels.Contains("stable");
     }
 
     public static bool IsPreRelease(string tag) =>

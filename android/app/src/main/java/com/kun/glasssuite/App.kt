@@ -6,6 +6,7 @@ import android.app.NotificationManager
 import android.content.Context
 import com.kun.glasssuite.data.Api
 import com.kun.glasssuite.data.AppConfig
+import com.kun.glasssuite.data.ErrorReporter
 import com.kun.glasssuite.data.SettingsStore
 import com.kun.glasssuite.player.PlayerManager
 import kotlinx.coroutines.flow.first
@@ -22,6 +23,7 @@ class App : Application() {
         runBlocking {
             val s = settings.data.first()
             AppConfig.apiBaseUrl = s.apiBaseUrl
+            AppConfig.directMode = s.directMode
             AppConfig.accentHex = s.accentHex
             AppConfig.darkMode = s.darkMode
             AppConfig.themeMode = s.themeMode
@@ -30,6 +32,7 @@ class App : Application() {
             com.kun.glasssuite.data.BetaStore.betaServerUrl = s.betaServerUrl
             com.kun.glasssuite.data.BetaStore.betaKey = s.betaKey
             com.kun.glasssuite.data.BetaStore.betaAccess = s.betaKey.isNotBlank()
+            com.kun.glasssuite.data.BetaStore.betaTier = s.betaTier
             AppConfig.lyricFontSize = s.lyricFontSize
             AppConfig.lyricOffsetMs = s.lyricOffsetMs
             AppConfig.lyricMode = s.lyricMode
@@ -40,6 +43,7 @@ class App : Application() {
         }
         Api.init(this)
         PlayerManager.init(this, settings)
+        ErrorReporter.init(this)
         createNotificationChannel()
         // 恢复登录态内存镜像
         runCatching {

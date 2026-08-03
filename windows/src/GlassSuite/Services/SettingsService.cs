@@ -6,6 +6,7 @@ namespace GlassSuite.Services;
 public class AppSettings
 {
     public string ApiBaseUrl { get; set; } = "http://localhost:3000";
+    public bool DirectMode { get; set; } = true;
     public string AccentHex { get; set; } = "#C62F2F";
     public bool DarkMode { get; set; }
     public int LyricFontSize { get; set; } = 18;
@@ -15,6 +16,7 @@ public class AppSettings
     public string Quality { get; set; } = "exhigh";
     public string BetaServerUrl { get; set; } = "http://localhost:3100";
     public string BetaKey { get; set; } = "";
+    public int BetaTier { get; set; }
     public long UserId { get; set; }
     public string ProfileJson { get; set; } = "";
     public string Cookie { get; set; } = "";

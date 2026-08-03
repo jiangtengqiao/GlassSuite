@@ -21,6 +21,10 @@ object UpdateChecker {
 
     const val VERSION_NAME = "1.1.0"
     const val CHECK_INTERVAL_MS = 30 * 60 * 1000L
+    const val INITIAL_CHECK_DELAY_MS = 5 * 1000L
+    private val BACKOFF_STEPS = longArrayOf(30 * 60_000L, 60 * 60_000L, 2 * 60 * 60_000L, 4 * 60 * 60_000L, 8 * 60 * 60_000L)
+
+    private var _lastSuccess = true
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
@@ -58,15 +62,21 @@ object UpdateChecker {
         if (started) return
         started = true
         scope.launch {
+            var failures = 0
             checkNow()
             while (true) {
-                delay(CHECK_INTERVAL_MS)
-                checkNow()
+                // 自适应轮询：成功按标准间隔；失败退避 30m→1h→2h→4h→8h 封顶
+                val delayMs = if (_lastSuccess) CHECK_INTERVAL_MS
+                else BACKOFF_STEPS[minOf(failures, BACKOFF_STEPS.size - 1)]
+                delay(delayMs)
+                val ok = checkNow()
+                if (ok) { _lastSuccess = true; failures = 0 }
+                else { _lastSuccess = false; failures++ }
             }
         }
     }
 
-    /** 手动检查（返回是否有更新）。有尝鲜权限推 Beta；否则仅正式版可被监测推送 */
+    /** 手动检查（返回是否有更新）。按尝鲜层级过滤通道：正式版 / Beta / Alpha / Dev */
     suspend fun checkNow(): Boolean {
         _checking.value = true
         try {
@@ -75,9 +85,9 @@ object UpdateChecker {
             if (release != null) {
                 val prev = _latest.value
                 _latest.value = release
-                // 渠道过滤：无尝鲜权限时跳过 Beta/RC 版本
-                val betaOk = BetaStore.betaAccess || !isPreRelease(release.tagName)
-                val newer = betaOk && isNewer(release.tagName, VERSION_NAME)
+                // 严格通道过滤：仅当版本通道在用户层级可见时才推送
+                val channelOk = channelAllowed(release.tagName)
+                val newer = channelOk && isNewer(release.tagName, VERSION_NAME)
                 _hasUpdate.value = newer
                 if (newer && prev?.tagName != release.tagName) {
                     _events.tryEmit(UpdateEvent.NewVersion(release))
@@ -100,6 +110,18 @@ object UpdateChecker {
             return _hasUpdate.value
         } finally {
             _checking.value = false
+        }
+    }
+
+    /** 通道判定：tag 后缀决定通道，与用户层级匹配才放行 */
+    private fun channelAllowed(tag: String): Boolean {
+        val t = tag.lowercase()
+        val channels = BetaStore.channels()
+        return when {
+            t.contains("-dev") -> channels.contains("dev")
+            t.contains("-alpha") -> channels.contains("alpha")
+            t.contains("-beta") || t.contains("-rc") -> channels.contains("beta")
+            else -> channels.contains("stable")
         }
     }
 

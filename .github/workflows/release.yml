@@ -61,24 +61,9 @@ jobs:
           path: dist/*.zip
           if-no-files-found: error
 
-  harmony:
-    name: HarmonyOS 源码包
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: 打包 HarmonyOS 工程源码
-        run: |
-          mkdir -p dist
-          tar -czf dist/harmony-source-${{ github.ref_name }}.tar.gz harmony
-      - uses: actions/upload-artifact@v4
-        with:
-          name: harmony
-          path: dist/*.tar.gz
-          if-no-files-found: error
-
   release:
     name: 创建 GitHub Release
-    needs: [android, windows, harmony]
+    needs: [android, windows]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
@@ -102,12 +87,10 @@ jobs:
 
             - **Android**：`GlassSuite-<版本>.apk`（debug 签名，可直接安装）
             - **Windows**：`GlassSuite-win-x64-<版本>.zip`（win-x64，需 [.NET 10 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/10.0)）
-            - **HarmonyOS**：`harmony-source-<版本>.tar.gz`（DevEco Studio 打开 `harmony/` 构建 HAP，API 12+）
 
             ### 使用步骤
-            1. 部署接口服务：`cd server && docker compose up -d`
-            2. 部署尝鲜系统：`cd server/beta-server && npm install && node server.js`
-            3. 应用「设置」配置服务器地址与 Beta 服务器地址
-            4. 音乐模块扫码/验证码登录；「开发者尝鲜」可申请尝鲜码体验 Beta 推送
+            1. 安装后打开即用：默认「自动直连网易云」（weapi/eapi 加密直连官方接口，无需部署服务器）
+            2. 音乐模块扫码/验证码登录；「开发者尝鲜」可申请尝鲜码，按层级体验 Alpha/Beta/正式版推送
+            3. 可选：自建接口服务 `cd server && docker compose up -d`，在设置中切换「自托管服务器」模式
 
             > 仅供学习交流使用；音乐内容版权归网易云音乐及权利人所有。

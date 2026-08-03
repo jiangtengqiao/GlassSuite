@@ -21,6 +21,16 @@ object BetaStore {
     var betaServerUrl: String = "http://10.0.2.2:3100"
     var betaKey: String = ""
     var betaAccess: Boolean = false
+    /** 尝鲜层级：0 正式用户 / 1 Beta 尝鲜 / 2 Alpha 内测 / 3 开发者核心 */
+    var betaTier: Int = 0
+
+    val tierName: String
+        get() = when (betaTier) {
+            3 -> "开发者核心"
+            2 -> "Alpha 内测"
+            1 -> "Beta 尝鲜"
+            else -> "正式用户"
+        }
 
     private val client = OkHttpClient.Builder()
         .connectTimeout(10, TimeUnit.SECONDS)
@@ -125,7 +135,19 @@ object BetaStore {
         if (valid) {
             betaKey = key
             betaAccess = true
+            betaTier = r.optInt("tier", 1)
+        } else {
+            betaTier = 0
         }
         return valid
+    }
+
+    /** 当前层级可用的更新通道 */
+    fun channels(): List<String> {
+        val c = mutableListOf("stable")
+        if (betaTier >= 1) c.add("beta")
+        if (betaTier >= 2) c.add("alpha")
+        if (betaTier >= 3) c.add("dev")
+        return c
     }
 }

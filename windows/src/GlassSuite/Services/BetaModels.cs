@@ -16,6 +16,7 @@ public class BetaApplyResult
     [JsonPropertyName("status")] public string Status { get; set; } = "none";
     [JsonPropertyName("score")] public int Score { get; set; }
     [JsonPropertyName("key")] public string Key { get; set; } = "";
+    [JsonPropertyName("tier")] public int Tier { get; set; }
     [JsonPropertyName("reasons")] public List<string> Reasons { get; set; } = new();
     [JsonPropertyName("message")] public string Message { get; set; } = "";
 }
@@ -24,4 +25,12 @@ public class BetaVerifyResult
 {
     [JsonPropertyName("valid")] public bool Valid { get; set; }
     [JsonPropertyName("beta")] public bool Beta { get; set; }
+    [JsonPropertyName("tier")] public int Tier { get; set; }
+    [JsonPropertyName("tierName")] public string TierName { get; set; } = "正式用户";
+}
+
+public class BetaLatestResult
+{
+    [JsonPropertyName("tier")] public int Tier { get; set; }
+    [JsonPropertyName("channels")] public List<string> Channels { get; set; } = new();
 }

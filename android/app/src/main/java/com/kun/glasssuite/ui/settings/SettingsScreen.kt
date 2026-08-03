@@ -53,6 +53,7 @@ import com.kun.glasssuite.App
 import com.kun.glasssuite.data.Api
 import com.kun.glasssuite.data.AppConfig
 import com.kun.glasssuite.data.BetaStore
+import com.kun.glasssuite.data.ErrorReporter
 import com.kun.glasssuite.data.Settings
 import com.kun.glasssuite.data.UpdateChecker
 import com.kun.glasssuite.ui.theme.AccentPresets
@@ -82,6 +83,8 @@ fun SettingsScreen(onBack: () -> Unit, onOpenBeta: () -> Unit = {}) {
     var connState by remember { mutableStateOf("") }
     var savedMsg by remember { mutableStateOf<String?>(null) }
     var openDoc by remember { mutableStateOf<String?>(null) }
+    var errLog by remember { mutableStateOf("") }
+    var errMsg by remember { mutableStateOf<String?>(null) }
 
     // 自动探测默认服务器地址（模拟器/真机）
     LaunchedEffect(Unit) {
@@ -147,7 +150,43 @@ fun SettingsScreen(onBack: () -> Unit, onOpenBeta: () -> Unit = {}) {
                 }
             }
 
-            // ===== 服务器连接 =====
+            // ===== 连接方式 =====
+            SectionTitle("连接方式")
+            var directNow by remember { mutableStateOf(AppConfig.directMode) }
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                FilterChip(
+                    selected = directNow,
+                    onClick = {
+                        directNow = true
+                        AppConfig.directMode = true
+                        scope.launch { app.settings.setDirectMode(true) }
+                    },
+                    label = { Text("自动直连网易云（推荐）") },
+                )
+                FilterChip(
+                    selected = !directNow,
+                    onClick = {
+                        directNow = false
+                        AppConfig.directMode = false
+                        scope.launch { app.settings.setDirectMode(false) }
+                    },
+                    label = { Text("自托管服务器") },
+                )
+            }
+            Text(
+                if (directNow) {
+                    "无需部署任何服务器：App 内置网易云官方接口加密协议（weapi/eapi），直接连接 music.163.com，" +
+                        "扫码/验证码登录、歌单、歌词、播放、MV 全部可用，开箱即听。"
+                } else {
+                    "使用自建的 NeteaseCloudMusicApi 服务（仓库 server/ 目录），适合需要固定出口 IP 与自定义部署的场景。"
+                },
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Spacer(Modifier.height(10.dp))
+
+            // ===== 服务器连接（仅自托管模式） =====
+            if (!directNow) {
             SectionTitle("服务器连接")
             Text(
                 "音乐数据由你部署的服务器提供。部署方式见仓库 README；默认地址适用于模拟器。",
@@ -185,6 +224,7 @@ fun SettingsScreen(onBack: () -> Unit, onOpenBeta: () -> Unit = {}) {
                 Text(connState, color = if (connState.startsWith("✅")) Color(0xFF00B578) else Color(0xFFE84026))
             }
             savedMsg?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary) }
+            }
 
             // ===== 开发者尝鲜 =====
             SectionTitle("开发者尝鲜")
@@ -219,6 +259,44 @@ fun SettingsScreen(onBack: () -> Unit, onOpenBeta: () -> Unit = {}) {
                     scope.launch { app.settings.setBetaServer(betaUrl.trim()) }
                     savedMsg = "尝鲜服务器已保存"
                 }) { Text("保存") }
+            }
+
+            // ===== 错误上报 =====
+            SectionTitle("错误上报")
+            Text(
+                "崩溃与异常自动采集（含设备信息与版本号），启动时自动上传，失败自动保留并重试；可随时手动上传或清空。",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(onClick = {
+                    errLog = ErrorReporter.recentLogs(300)
+                    errMsg = "待上传日志：${ErrorReporter.pendingFiles().size} 条"
+                }) { Text("查看日志") }
+                OutlinedButton(onClick = {
+                    scope.launch {
+                        val n = ErrorReporter.uploadAll()
+                        errMsg = if (n > 0) "✅ 已上传 $n 条错误日志" else "无待上传日志"
+                    }
+                }) { Text("手动上传") }
+                OutlinedButton(onClick = {
+                    ErrorReporter.clearAll()
+                    errLog = ""
+                    errMsg = "已清空本地错误日志"
+                }) { Text("清空") }
+            }
+            errMsg?.let {
+                Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
+            }
+            if (errLog.isNotEmpty()) {
+                Text(
+                    errLog,
+                    style = MaterialTheme.typography.bodySmall,
+                    fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                    maxLines = 10,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                    modifier = Modifier.padding(top = 4.dp),
+                )
             }
 
             // ===== 关于与法律 =====

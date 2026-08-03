@@ -4,16 +4,25 @@
              Background="White">
     <ScrollViewer>
         <StackPanel Margin="20">
-            <TextBlock Text="服务器" FontSize="16" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" />
-            <Grid Margin="0,8,0,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <TextBox x:Name="ApiBox" Height="32" FontSize="13" />
-                <Button Grid.Column="1" Content="保存并应用" Margin="10,0,0,0" Click="SaveApi_Click" />
-            </Grid>
-            <TextBlock Text="{Binding Status}" FontSize="12" Foreground="{StaticResource AccentBrush}" Margin="0,6,0,0" />
+            <TextBlock Text="连接方式" FontSize="16" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" />
+            <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                <Button x:Name="DirectBtn" Content="自动直连网易云（推荐）" Click="DirectMode_Click" Tag="true" Margin="0,0,8,0" />
+                <Button x:Name="ServerBtn" Content="自托管服务器" Click="DirectMode_Click" Tag="false" />
+            </StackPanel>
+            <TextBlock x:Name="ModeHint" FontSize="12" Foreground="#888888" Margin="0,6,0,0" TextWrapping="Wrap" />
+
+            <TextBlock Text="服务器" FontSize="16" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" Margin="0,22,0,0" />
+            <StackPanel x:Name="ServerPanel">
+                <Grid Margin="0,8,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBox x:Name="ApiBox" Height="32" FontSize="13" />
+                    <Button Grid.Column="1" Content="保存并应用" Margin="10,0,0,0" Click="SaveApi_Click" />
+                </Grid>
+                <TextBlock Text="{Binding Status}" FontSize="12" Foreground="{StaticResource AccentBrush}" Margin="0,6,0,0" />
+            </StackPanel>
 
             <TextBlock Text="主题定制" FontSize="16" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" Margin="0,22,0,0" />
             <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
@@ -62,6 +71,18 @@
                 <TextBox x:Name="BetaUrlBox" Height="30" FontSize="12" ToolTip="Beta 服务器地址" />
                 <Button Grid.Column="1" Content="保存" Margin="10,0,0,0" Click="SaveBetaUrl_Click" />
             </Grid>
+
+            <TextBlock Text="错误上报" FontSize="16" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" Margin="0,22,0,0" />
+            <TextBlock Text="崩溃与异常自动采集（含系统与版本信息），启动时自动上传，失败自动保留并重试。"
+                       FontSize="12" Foreground="#888888" Margin="0,6,0,0" TextWrapping="Wrap" />
+            <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                <Button Content="查看日志" Click="ErrLog_Click" Margin="0,0,8,0" />
+                <Button Content="手动上传" Click="ErrUpload_Click" Margin="0,0,8,0" />
+                <Button Content="清空" Click="ErrClear_Click" />
+            </StackPanel>
+            <TextBlock x:Name="ErrStatus" FontSize="12" Foreground="{StaticResource AccentBrush}" Margin="0,6,0,0" />
+            <TextBox x:Name="ErrBox" Height="150" IsReadOnly="True" AcceptsReturn="True" TextWrapping="Wrap"
+                     FontFamily="Consolas" FontSize="11" Margin="0,6,0,0" Visibility="Collapsed" />
 
             <TextBlock Text="关于与法律" FontSize="16" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" Margin="0,22,0,0" />
             <StackPanel Margin="0,8,0,0">

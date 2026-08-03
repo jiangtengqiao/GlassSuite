@@ -18,6 +18,24 @@ public partial class SettingsView : UserControl
         ApiBox.Text = _vm.ApiUrl;
         DiyBox.Text = _vm.DiyLyric;
         BetaUrlBox.Text = _vm.BetaServerUrl;
+        UpdateModeUi(_vm.DirectMode);
+    }
+
+    private void UpdateModeUi(bool direct)
+    {
+        ServerPanel.Visibility = direct ? Visibility.Collapsed : Visibility.Visible;
+        DirectBtn.FontWeight = direct ? FontWeights.Bold : FontWeights.Normal;
+        ServerBtn.FontWeight = direct ? FontWeights.Normal : FontWeights.Bold;
+        ModeHint.Text = direct
+            ? "无需部署服务器：内置网易云官方接口加密协议（weapi/eapi），直连 music.163.com，扫码/验证码登录、歌单、歌词、播放全部可用。"
+            : "使用自建的 NeteaseCloudMusicApi 服务（仓库 server/ 目录），适合固定出口 IP 或自定义部署场景。";
+    }
+
+    private void DirectMode_Click(object sender, RoutedEventArgs e)
+    {
+        var direct = (sender as FrameworkElement)?.Tag is bool b && b;
+        _vm.SetDirectMode(direct);
+        UpdateModeUi(direct);
     }
 
     private void SaveApi_Click(object sender, RoutedEventArgs e)
@@ -76,6 +94,46 @@ public partial class SettingsView : UserControl
     {
         _vm.BetaServerUrl = BetaUrlBox.Text.Trim();
         _vm.SaveBetaServer();
+    }
+
+    private async void ErrLog_Click(object sender, RoutedEventArgs e)
+    {
+        ErrBox.Text = GlassSuite.Services.ErrorReporter.RecentLogs();
+        ErrBox.Visibility = Visibility.Visible;
+        ErrStatus.Text = $"待上传日志：{GlassSuite.Services.ErrorReporter.PendingCount()} 条";
+    }
+
+    private async void ErrUpload_Click(object sender, RoutedEventArgs e)
+    {
+        ErrStatus.Text = "上传中…";
+        try
+        {
+            var n = await GlassSuite.Services.ErrorReporter.UploadAllAsync();
+            ErrStatus.Text = n > 0 ? $"✅ 已上传 {n} 条错误日志" : "无待上传日志";
+        }
+        catch (Exception ex)
+        {
+            ErrStatus.Text = "上传失败：" + ex.Message;
+        }
+    }
+
+    private void ErrClear_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var dir = System.IO.Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GlassSuite", "errors");
+            if (System.IO.Directory.Exists(dir))
+            {
+                foreach (var f in System.IO.Directory.GetFiles(dir, "*.log")) System.IO.File.Delete(f);
+            }
+            ErrBox.Visibility = Visibility.Collapsed;
+            ErrStatus.Text = "已清空本地错误日志";
+        }
+        catch (Exception ex)
+        {
+            ErrStatus.Text = "清空失败：" + ex.Message;
+        }
     }
 
     public event EventHandler? BetaRequested;
