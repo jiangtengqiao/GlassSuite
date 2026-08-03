@@ -1,13 +1,13 @@
 # 璃光 GlassSuite — 多功能应用套件
 
-![平台](https://img.shields.io/badge/平台-Android%20%7C%20HarmonyOS%20%7C%20Windows-blue)
+![平台](https://img.shields.io/badge/平台-Android%20%7C%20Windows-blue)
 ![版本](https://img.shields.io/badge/版本-v1.0.0-red)
 ![许可](https://img.shields.io/badge/许可-MIT-green)
 [![Release](https://img.shields.io/badge/下载-Releases-blueviolet)](https://github.com/jiangtengqiao/GlassSuite/releases)
 
-> 开箱即用：**Windows 包、Android APK、HarmonyOS 源码包** 均发布在 [Releases](https://github.com/jiangtengqiao/GlassSuite/releases)，打 tag 即自动构建发布。
+> 开箱即用：**Android APK、Windows 安装包** 均发布在 [Releases](https://github.com/jiangtengqiao/GlassSuite/releases)，打 tag 即自动构建发布。
 
-一个功能真实一致、可真实运行的多功能应用套件（音乐只是模块之一），覆盖 **Android / HarmonyOS / Windows** 三端。音乐数据经自托管的网易云音乐接口服务（NeteaseCloudMusicApi）实时拉取，支持真实在线播放、实时歌词、扫码/验证码登录、歌单、搜索、收藏点赞、锁屏媒体控制、主题定制等完整音乐功能。
+一个功能真实一致、可真实运行的多功能应用套件（音乐只是模块之一），覆盖 **Android / Windows** 双端。音乐数据经自托管的网易云音乐接口服务（NeteaseCloudMusicApi）实时拉取，支持真实在线播放、实时歌词、扫码/验证码登录、歌单、搜索、收藏点赞、锁屏媒体控制、主题定制等完整音乐功能。
 
 > ⚠️ **合规提示**：本项目仅供学习交流使用。音乐内容版权归网易云音乐及相应权利人所有；对外发布前请替换 `docs/legal/` 中的占位符并取得必要授权。
 
@@ -34,14 +34,13 @@
 | 歌单 | 歌单详情+完整曲目、收藏/取消收藏、我的歌单、我喜欢（点赞列表） |
 | 用户 | 资料展示、统计信息、退出登录 |
 | 设置 | API 地址、主题色（6 种色板）、深色模式、歌词默认参数、DIY 歌词管理、关于与法律（9 份文档全文） |
-| 系统集成 | Android：锁屏媒体通知+状态栏常驻；HarmonyOS：系统媒体中心（AVSession）；Windows：系统媒体信息（SMTC）尽力集成 |
+| 系统集成 | Android：锁屏媒体通知+状态栏常驻；Windows：系统媒体信息（SMTC）尽力集成 |
 
 ## 技术栈
 
 | 端 | 技术 | 播放引擎 |
 |---|---|---|
 | Android | Kotlin + Jetpack Compose (Material3) | Media3 ExoPlayer |
-| HarmonyOS | ArkTS + ArkUI（API 12+，Stage 模型） | media.AVPlayer + AVSession |
 | Windows | C# / .NET 8 WPF | LibVLCSharp + VideoLAN LibVLC |
 | API 服务 | Node.js（NeteaseCloudMusicApi，自托管） | — |
 

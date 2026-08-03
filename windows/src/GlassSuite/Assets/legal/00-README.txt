@@ -1,6 +1,6 @@
 # 法律与合规文档 — 维护说明
 
-本目录是「璃光 GlassSuite」三端应用（Android / HarmonyOS / Windows）**法律文档的唯一事实源**，每篇约 3 万字。
+本目录是「璃光 GlassSuite」双端应用（Android / Windows）**法律文档的唯一事实源**，每篇约 3 万字。
 
 三端应用内的「设置 → 关于与法律」页面均展示本目录文档的全文内容。修改法律文档时，只需更新本目录文件，并同步三端内置文本。
 
@@ -26,7 +26,7 @@
 ## 同步发布流程
 
 1. 修改本目录对应 `.md` 文件；
-2. 同步至三端内置文本（Android `assets/legal/`、HarmonyOS `rawfile/legal/`、Windows `Assets/legal/`，扩展名 `.txt`）；
+2. 同步至三端内置文本（Android `assets/legal/`、Windows `Assets/legal/`，扩展名 `.txt`）；
 3. 在应用「设置 → 关于与法律」核对展示；
 4. 随应用版本一同发布。
 
